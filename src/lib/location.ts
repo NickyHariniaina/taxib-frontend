@@ -1,5 +1,8 @@
 export type LatLon = { lat: number; lon: number };
 
+/** Default map center: Antananarivo, Madagascar. */
+export const TANA: LatLon = { lat: -18.8792, lon: 47.5079 };
+
 /** Browser geolocation → { lat, lon }. Rejects on deny/unavailable. */
 export function getCurrentPosition(): Promise<LatLon> {
   return new Promise((resolve, reject) => {

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import L, { type LatLngExpression } from 'leaflet';
-import type { LatLon } from '../lib/location';
+import { TANA, type LatLon } from '../lib/location';
 import 'leaflet/dist/leaflet.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -14,15 +14,13 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-export const TANA: LatLon = { lat: -18.8792, lon: 47.5079 };
-
-type Props = {
+export type MapProps = {
   origin: LatLon;
   dest: LatLon;
   onChange: (origin: LatLon, dest: LatLon) => void;
 };
 
-export default function Map({ origin, dest, onChange }: Props) {
+export default function Map({ origin, dest, onChange }: MapProps) {
   const center = useMemo<LatLngExpression>(() => [TANA.lat, TANA.lon], []);
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
