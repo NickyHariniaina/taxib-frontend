@@ -106,7 +106,7 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
               setOpen(false);
             }
           }}
-          className="min-w-0 flex-1 rounded-xl bg-white/5 px-3 py-2.5 text-sm text-stone-100 ring-1 ring-white/10 outline-none placeholder:text-stone-500 focus:ring-amber-300"
+          className="min-w-0 flex-1 rounded-xl bg-white/5 px-3 py-2.5 text-sm text-stone-100 ring-1 ring-white/10 outline-none placeholder:text-stone-500 focus:ring-[#FC3D32]"
         />
         {text && (
           <button
@@ -119,7 +119,7 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
             }}
             title="Clear"
             aria-label={`Clear ${label}`}
-            className="rounded-xl bg-white/5 px-3 ring-1 ring-white/10 hover:ring-amber-300"
+            className="rounded-xl bg-white/5 px-3 ring-1 ring-white/10 hover:ring-[#FC3D32]"
           >
             ✕
           </button>
@@ -134,7 +134,7 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
         >
           {loading && <li className="px-3 py-2.5 text-[13px] text-stone-400">Searching…</li>}
           {!loading && failed && (
-            <li className="px-3 py-2.5 text-[13px] text-red-300">Search failed — try again.</li>
+            <li className="px-3 py-2.5 text-[13px] text-red-300">Search failed, try again.</li>
           )}
           {!loading && !failed && results.length === 0 && (
             <li className="px-3 py-2.5 text-[13px] text-stone-400">No places found in Antananarivo.</li>

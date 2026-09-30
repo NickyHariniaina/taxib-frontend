@@ -23,7 +23,7 @@ function Chips({ lines }: { lines: BusLine[] }) {
   );
 }
 
-/** Direct (no-transfer) line candidates + per-endpoint coverage. Transfers need route members — next step. */
+/** Direct (no-transfer) line candidates + per-endpoint coverage. Transfers need route members (next step). */
 export default function JourneyOptions({ originLines, destLines, loading }: Props) {
   if (loading) {
     return (
@@ -37,14 +37,14 @@ export default function JourneyOptions({ originLines, destLines, loading }: Prop
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-amber-300">
+        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-green-400">
           Direct buses · no transfer
         </p>
         {direct.length > 0 ? (
           <Chips lines={direct} />
         ) : (
           <p className="text-xs text-stone-400">
-            No single line covers both ends — transfer routing needs route members (next step).
+            No single line covers both ends yet.
           </p>
         )}
       </div>

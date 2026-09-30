@@ -8,7 +8,7 @@ export type RoadPath = {
 };
 
 // Public OSRM demo server: free, no key, reasonable-use limits.
-// Display scaffolding only — road geometry, not transit routing.
+// Display scaffolding only: road geometry, not transit routing.
 const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving';
 
 type OsrmResponse = {

@@ -41,7 +41,7 @@ type OverpassNode = {
 /**
  * SPIKE (frontend, throwaway transport): bus stops around a point, live from OSM.
  * Covers both tagging schemes (`highway=bus_stop` + PTv2 `public_transport=platform`).
- * Returns top-N by distance — never a single "nearest", routing needs candidates.
+ * Returns top-N by distance. Never a single "nearest", routing needs candidates.
  * The signature mirrors the future `GET /stops/nearby`; only this body moves backend.
  */
 export async function findNearbyStops(

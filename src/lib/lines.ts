@@ -25,7 +25,7 @@ type OverpassRelation = {
 
 /**
  * SPIKE: bus lines passing near a point, live from OSM route relations.
- * Groups A/R variants under one ref. No member parsing — cheap bbox query.
+ * Groups A/R variants under one ref. No member parsing: cheap bbox query.
  * Signature mirrors the future backend; only this body moves.
  */
 export async function findLinesNear(center: LatLon, opts?: LinesOptions): Promise<BusLine[]> {

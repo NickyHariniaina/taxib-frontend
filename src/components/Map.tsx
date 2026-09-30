@@ -1,5 +1,14 @@
 import { useEffect, useMemo } from 'react';
-import { CircleMarker, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import {
+  CircleMarker,
+  MapContainer,
+  Marker,
+  Polyline,
+  TileLayer,
+  Tooltip,
+  useMap,
+  useMapEvents,
+} from 'react-leaflet';
 import type { Stop } from '../lib/stops';
 import L, { type LatLngExpression } from 'leaflet';
 import { TANA, type LatLon } from '../lib/location';
@@ -9,7 +18,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 // Vite breaks Leaflet's default icon URLs, and Icon.Default mangles
-// replacement URLs by prepending its detected image path — so use explicit
+// replacement URLs by prepending its detected image path, so use explicit
 // icons instead of mutating the default.
 const originIcon = L.icon({
   iconUrl: markerIcon,
@@ -24,15 +33,17 @@ const originIcon = L.icon({
 const destIcon = originIcon;
 
 export type MapProps = {
-  origin: LatLon;
-  dest: LatLon;
+  origin: LatLon | null;
+  dest: LatLon | null;
   /** When set, glide the camera here (search pick). Consumed once per change. */
   focus: LatLon | null;
   originStops: Stop[];
   destStops: Stop[];
   /** Ordered road geometry, drawn under the markers. Null = not loaded. */
   path: LatLon[] | null;
-  onChange: (origin: LatLon, dest: LatLon) => void;
+  onChange: (origin: LatLon | null, dest: LatLon | null) => void;
+  /** Tap on empty map: sets origin if unset, else destination. */
+  onMapClick: (point: LatLon) => void;
 };
 
 /** Glides to `focus` whenever it changes to a new point. */
@@ -46,7 +57,24 @@ function FlyTo({ focus }: { focus: LatLon | null }) {
   return null;
 }
 
-export default function Map({ origin, dest, focus, originStops, destStops, path, onChange }: MapProps) {
+/** Tap on empty map (not on a marker) sets the next unset endpoint. */
+function ClickSetter({ onMapClick }: { onMapClick: (point: LatLon) => void }) {
+  useMapEvents({
+    click: (e) => onMapClick({ lat: e.latlng.lat, lon: e.latlng.lng }),
+  });
+  return null;
+}
+
+export default function Map({
+  origin,
+  dest,
+  focus,
+  originStops,
+  destStops,
+  path,
+  onChange,
+  onMapClick,
+}: MapProps) {
   const center = useMemo<LatLngExpression>(() => [TANA.lat, TANA.lon], []);
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -55,6 +83,7 @@ export default function Map({ origin, dest, focus, originStops, destStops, path,
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <FlyTo focus={focus} />
+      <ClickSetter onMapClick={onMapClick} />
       {path && path.length > 1 && (
         <Polyline
           positions={path.map((p) => [p.lat, p.lon] as [number, number])}
@@ -85,28 +114,32 @@ export default function Map({ origin, dest, focus, originStops, destStops, path,
           </Tooltip>
         </CircleMarker>
       ))}
-      <Marker
-        draggable
-        icon={originIcon}
-        position={[origin.lat, origin.lon]}
-        eventHandlers={{
-          dragend: (e) => {
-            const m = e.target.getLatLng();
-            onChange({ lat: m.lat, lon: m.lng }, dest);
-          },
-        }}
-      />
-      <Marker
-        draggable
-        icon={destIcon}
-        position={[dest.lat, dest.lon]}
-        eventHandlers={{
-          dragend: (e) => {
-            const m = e.target.getLatLng();
-            onChange(origin, { lat: m.lat, lon: m.lng });
-          },
-        }}
-      />
+      {origin && (
+        <Marker
+          draggable
+          icon={originIcon}
+          position={[origin.lat, origin.lon]}
+          eventHandlers={{
+            dragend: (e) => {
+              const m = e.target.getLatLng();
+              onChange({ lat: m.lat, lon: m.lng }, dest);
+            },
+          }}
+        />
+      )}
+      {dest && (
+        <Marker
+          draggable
+          icon={destIcon}
+          position={[dest.lat, dest.lon]}
+          eventHandlers={{
+            dragend: (e) => {
+              const m = e.target.getLatLng();
+              onChange(origin, { lat: m.lat, lon: m.lng });
+            },
+          }}
+        />
+      )}
     </MapContainer>
   );
 }

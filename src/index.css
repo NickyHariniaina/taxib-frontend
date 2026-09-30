@@ -1,8 +1,11 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-brand: #ffc531;
-  --color-brand-deep: #ff8a3d;
+  /* Madagascar flag: red #FC3D32, green #007E3A, white */
+  --color-brand: #fc3d32;
+  --color-brand-deep: #c22a22;
+  --color-leaf: #007e3a;
+  --color-leaf-bright: #22c55e;
   --font-sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 

@@ -9,7 +9,7 @@ export type Place = {
 
 /**
  * Forward-geocode via Nominatim (OSM, free, no key), biased to Antananarivo.
- * Politeness: callers must debounce (~500ms) and abort stale requests —
+ * Politeness: callers must debounce (~500ms) and abort stale requests.
  * Nominatim policy is ~1 req/s. Swap this function for Photon later
  * without touching any component.
  */

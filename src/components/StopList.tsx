@@ -34,7 +34,7 @@ export default function StopList({ title, stops, loading, onSelect }: Props) {
               <button
                 type="button"
                 onClick={() => onSelect(s)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg bg-white/5 px-3 py-2 text-left ring-1 ring-white/10 hover:ring-amber-300"
+                className="flex w-full items-center justify-between gap-2 rounded-lg bg-white/5 px-3 py-2 text-left ring-1 ring-white/10 hover:ring-[#007E3A]"
               >
                 <span className="truncate text-[13px] text-stone-100">{s.name}</span>
                 <span className="shrink-0 font-mono text-[11px] text-stone-400">{s.distanceM}m</span>
