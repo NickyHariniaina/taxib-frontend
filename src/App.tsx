@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import Map from './components/Map';
 import { TANA, getCurrentPosition, type LatLon } from './lib/location';
+
+const Map3D = lazy(() => import('./components/Map3D'));
+
+type ViewMode = '2d' | '3d';
 
 export default function App() {
   const [origin, setOrigin] = useState<LatLon>(TANA);
   const [dest, setDest] = useState<LatLon>({ lat: -18.91, lon: 47.52 });
   const [error, setError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  const [view, setView] = useState<ViewMode>('2d');
 
   const useGps = async () => {
     try {
@@ -83,16 +88,51 @@ export default function App() {
 
       {/* map */}
       <main className="relative min-h-0">
-        <Map
-          origin={origin}
-          dest={dest}
-          onChange={(o, d) => {
-            setOrigin(o);
-            setDest(d);
-          }}
-        />
+        {view === '2d' ? (
+          <Map
+            origin={origin}
+            dest={dest}
+            onChange={(o, d) => {
+              setOrigin(o);
+              setDest(d);
+            }}
+          />
+        ) : (
+          <Suspense
+            fallback={
+              <div className="grid h-full place-items-center text-sm text-stone-400">
+                Loading 3D view…
+              </div>
+            }
+          >
+            <Map3D
+              origin={origin}
+              dest={dest}
+              onChange={(o, d) => {
+                setOrigin(o);
+                setDest(d);
+              }}
+            />
+          </Suspense>
+        )}
+        <div className="absolute top-3 right-3 z-[500] flex overflow-hidden rounded-full border border-white/10 bg-stone-900/90 backdrop-blur">
+            <button
+              type="button"
+              onClick={() => setView('2d')}
+              className={`px-4 py-1.5 text-xs font-bold ${view === '2d' ? 'bg-amber-300 text-stone-950' : 'text-stone-400'}`}
+            >
+              2D
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('3d')}
+              className={`px-4 py-1.5 text-xs font-bold ${view === '3d' ? 'bg-amber-300 text-stone-950' : 'text-stone-400'}`}
+            >
+              3D
+            </button>
+        </div>
         <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-stone-900/90 px-4 py-1.5 text-xs whitespace-nowrap text-stone-400 backdrop-blur">
-          Drag markers · scroll to zoom
+          {view === '3d' ? 'Drag markers · right-drag to tilt & rotate' : 'Drag markers · scroll to zoom'}
         </div>
       </main>
     </div>
