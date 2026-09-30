@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { MapContainer, Marker, TileLayer } from 'react-leaflet';
 import L, { type LatLngExpression } from 'leaflet';
 import { TANA, type LatLon } from '../lib/location';
+import { ESRI_ATTRIBUTION, ESRI_IMAGERY_URL } from '../lib/basemaps';
 import 'leaflet/dist/leaflet.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -24,10 +25,7 @@ export default function Map({ origin, dest, onChange }: MapProps) {
   const center = useMemo<LatLngExpression>(() => [TANA.lat, TANA.lon], []);
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <TileLayer attribution={ESRI_ATTRIBUTION} url={ESRI_IMAGERY_URL} />
       <Marker
         draggable
         position={[origin.lat, origin.lon]}
