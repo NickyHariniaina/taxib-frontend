@@ -12,3 +12,9 @@
   width: 100%;
   background: #0b0f14;
 }
+
+/* Tailwind preflight forces img { max-width: 100%; height: auto }, which
+   shrinks Leaflet marker icons and splits tiles. Opt the map back out. */
+.leaflet-container img {
+  max-width: none;
+}
