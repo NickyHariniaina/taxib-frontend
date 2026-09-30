@@ -7,6 +7,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import { TANA } from '../lib/location';
 import { satellite3DStyle } from '../lib/basemaps';
+import { DEMO_STOPS, stopsToBoxes } from '../lib/landmarks';
 import type { MapProps } from './Map';
 
 maplibregl.setWorkerUrl(workerUrl);
@@ -69,6 +70,50 @@ export default function Map3D({ origin, dest, onChange }: MapProps) {
     // Markers are DOM overlays and survive anything; nothing runtime to re-add.
     map.on('style.load', () => {
       markReady();
+      try {
+        // Amber stop pillars — demo data now, live `stops` table later.
+        if (map && !map.getSource('taxib-stops')) {
+          map.addSource('taxib-stops', { type: 'geojson', data: stopsToBoxes(DEMO_STOPS) });
+        }
+        if (map && !map.getLayer('taxib-pillars')) {
+          map.addLayer({
+            id: 'taxib-pillars',
+            source: 'taxib-stops',
+            type: 'fill-extrusion',
+            paint: {
+              'fill-extrusion-color': ['get', 'color'],
+              'fill-extrusion-height': ['get', 'height'],
+              'fill-extrusion-base': 0,
+              'fill-extrusion-opacity': 0.9,
+            },
+          });
+        }
+        // Urban feel: OSM buildings with a fallback height. Tana footprints
+        // rarely carry height tags, so coalesce to 12m — honest boxes, fake heights.
+        if (map && !map.getSource('openfreemap')) {
+          map.addSource('openfreemap', { type: 'vector', url: 'https://tiles.openfreemap.org/planet' });
+        }
+        if (map && !map.getLayer('city-boxes')) {
+          map.addLayer({
+            id: 'city-boxes',
+            source: 'openfreemap',
+            'source-layer': 'building',
+            type: 'fill-extrusion',
+            minzoom: 15,
+            filter: ['!=', ['get', 'hide_3d'], true],
+            paint: {
+              'fill-extrusion-color': '#cbd5e1',
+              'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 12],
+              'fill-extrusion-base': 0,
+              'fill-extrusion-opacity': 0.75,
+            },
+          });
+        }
+      } catch (e) {
+        // Boxes are decoration — never blank the map over them.
+        // eslint-disable-next-line no-console
+        console.warn('[Map3D] extrusion layers skipped:', e);
+      }
     });
 
     const onDrag = () => {
