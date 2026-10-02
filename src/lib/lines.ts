@@ -1,9 +1,7 @@
 import type { LatLon } from './location';
 
 export type BusLine = {
-  /** Line ref, e.g. "112" (variants A/R grouped under one ref). */
   ref: string;
-  /** Direction names, e.g. ["Ligne 112 Andranoro > Analakely", ...]. */
   directions: string[];
 };
 
@@ -14,7 +12,6 @@ export type LinesOptions = {
 
 const DEFAULT_RADIUS_M = 1000;
 
-// kumi instance: overpass-api.de rejects some clients (HTTP 406).
 const OVERPASS_URL = 'https://overpass.kumi.systems/api/interpreter';
 
 type OverpassRelation = {
@@ -23,11 +20,6 @@ type OverpassRelation = {
   tags?: { ref?: string; name?: string };
 };
 
-/**
- * SPIKE: bus lines passing near a point, live from OSM route relations.
- * Groups A/R variants under one ref. No member parsing: cheap bbox query.
- * Signature mirrors the future backend; only this body moves.
- */
 export async function findLinesNear(center: LatLon, opts?: LinesOptions): Promise<BusLine[]> {
   const radiusM = opts?.radiusM ?? DEFAULT_RADIUS_M;
   const ql = `[out:json][timeout:60];relation["route"="bus"](around:${radiusM},${center.lat},${center.lon});out tags;`;

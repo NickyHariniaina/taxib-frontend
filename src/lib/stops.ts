@@ -15,10 +15,8 @@ export type NearbyOptions = {
 const DEFAULT_RADIUS_M = 500;
 const DEFAULT_LIMIT = 5;
 
-// kumi instance: overpass-api.de rejects some clients (HTTP 406).
 const OVERPASS_URL = 'https://overpass.kumi.systems/api/interpreter';
 
-/** Great-circle distance in meters. Good enough for sub-km ranking. */
 export function haversineM(a: LatLon, b: LatLon): number {
   const R = 6_371_000;
   const toRad = (d: number) => (d * Math.PI) / 180;
@@ -38,12 +36,6 @@ type OverpassNode = {
   tags?: { name?: string; ref?: string; highway?: string; public_transport?: string };
 };
 
-/**
- * SPIKE (frontend, throwaway transport): bus stops around a point, live from OSM.
- * Covers both tagging schemes (`highway=bus_stop` + PTv2 `public_transport=platform`).
- * Returns top-N by distance. Never a single "nearest", routing needs candidates.
- * The signature mirrors the future `GET /stops/nearby`; only this body moves backend.
- */
 export async function findNearbyStops(
   center: LatLon,
   opts?: NearbyOptions,

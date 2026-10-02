@@ -1,18 +1,11 @@
 import type { LatLon } from './location';
 
 export type Place = {
-  /** Short label: first part of display_name. */
   name: string;
-  /** Full "Analakely, Antananarivo, Madagascar" string. */
   displayName: string;
 } & LatLon;
 
-/**
- * Forward-geocode via Nominatim (OSM, free, no key), biased to Antananarivo.
- * Politeness: callers must debounce (~500ms) and abort stale requests.
- * Nominatim policy is ~1 req/s. Swap this function for Photon later
- * without touching any component.
- */
+// View box to limit the nominatim search
 const TANA_VIEWBOX = { left: 47.3, top: -18.7, right: 47.7, bottom: -19.1 };
 
 type NominatimResult = {
