@@ -3,11 +3,9 @@ import type { LatLon } from './location';
 export type RoadPath = {
   path: LatLon[];
   distanceM: number;
-  durationS: number; // TODO: Might need to remove this one because it is not accurate
 };
 
-// Public OSRM demo server: free, no key, reasonable-use limits.
-// Display scaffolding only: road geometry, not transit routing.
+// TODO: Put in env
 const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving';
 
 type OsrmResponse = {
@@ -15,10 +13,6 @@ type OsrmResponse = {
   routes?: { geometry: { coordinates: [number, number][] }; distance: number; duration: number }[];
 };
 
-/**
- * Road path between two points (driving profile approximates bus roads).
- * Throws `route-not-found` when OSRM can't connect them.
- */
 export async function getRoadPath(
   from: LatLon,
   to: LatLon,
@@ -35,12 +29,10 @@ export async function getRoadPath(
   return {
     path: route.geometry.coordinates.map(([lon, lat]) => ({ lat, lon })),
     distanceM: Math.round(route.distance),
-    durationS: Math.round(route.duration),
   };
 }
 
-export function formatTrip(distanceM: number, durationS: number): string {
+export function formatTrip(distanceM: number): string {
   const km = (distanceM / 1000).toFixed(1);
-  const min = Math.max(1, Math.round(durationS / 60));
-  return `${min} min · ${km} km by road`;
+  return `${km} km`;
 }
