@@ -341,7 +341,7 @@ export default function App() {
             <div className="h-11 animate-pulse rounded-xl bg-white/5 ring-1 ring-white/10" />
           ) : road ? (
             <div className="rounded-xl bg-gradient-to-br from-[#FC3D32] to-[#c22a22] px-4 py-2.5 text-center text-sm font-extrabold text-white shadow-xl">
-              {formatTrip(road.distanceM, road.durationS)}
+              {formatTrip(road.distanceM)}
             </div>
           ) : (
             roadError && <p className="text-center text-xs text-stone-500">{roadError}</p>
