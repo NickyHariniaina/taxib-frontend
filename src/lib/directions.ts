@@ -1,10 +1,9 @@
 import type { LatLon } from './location';
 
 export type RoadPath = {
-  /** Ordered road geometry, origin → destination. */
   path: LatLon[];
   distanceM: number;
-  durationS: number;
+  durationS: number; // TODO: Might need to remove this one because it is not accurate
 };
 
 // Public OSRM demo server: free, no key, reasonable-use limits.
