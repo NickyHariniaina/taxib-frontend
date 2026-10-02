@@ -5,8 +5,7 @@ export type RoadPath = {
   distanceM: number;
 };
 
-// TODO: Put in env
-const OSRM_URL = 'https://router.project-osrm.org/route/v1/driving';
+const BASE_URL = import.meta.env.VITE_OSRM_BASE_URL;
 
 type OsrmResponse = {
   code: string;
@@ -19,7 +18,7 @@ export async function getRoadPath(
   opts?: { signal?: AbortSignal },
 ): Promise<RoadPath> {
   const url =
-    `${OSRM_URL}/${from.lon},${from.lat};${to.lon},${to.lat}` +
+    `${BASE_URL}/${from.lon},${from.lat};${to.lon},${to.lat}` +
     `?overview=full&geometries=geojson`;
   const res = await fetch(url, { signal: opts?.signal });
   if (!res.ok) throw new Error(`directions-failed (${res.status})`);
