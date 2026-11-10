@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import SearchField from "./components/SearchField";
 import NeighborhoodBrowser from "./components/NeighborhoodBrowser";
-import type { Neighborhood } from "./lib/neighborhoods";
 import StopList from "./components/StopList";
 import JourneyOptions from "./components/JourneyOptions";
 import { getCurrentPosition, type LatLon } from "./lib/location";
@@ -302,16 +301,6 @@ export default function App() {
                         width={44}
                         height={44}
                     />
-                    <NeighborhoodBrowser
-                        selectedId={selectedNeighborhoodId}
-                        onSelect={(neighborhood) => {
-                            setSelectedNeighborhoodId(neighborhood.id);
-                            setFocus({
-                                lat: neighborhood.latitude,
-                                lon: neighborhood.longitude,
-                            });
-                        }}
-                    />
                     <div className="flex-1">
                         <h1 className="text-xl font-bold tracking-tight">
                             taxib
@@ -330,6 +319,16 @@ export default function App() {
                     </button>
                 </div>
 
+                <NeighborhoodBrowser
+                    selectedId={selectedNeighborhoodId}
+                    onSelect={(neighborhood) => {
+                        setSelectedNeighborhoodId(neighborhood.id);
+                        setFocus({
+                            lat: neighborhood.latitude,
+                            lon: neighborhood.longitude,
+                        });
+                    }}
+                />
                 <SearchField
                     label="Origin"
                     placeholder="Search a place in Tana…"
