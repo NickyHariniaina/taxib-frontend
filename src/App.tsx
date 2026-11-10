@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import SearchField from "./components/SearchField";
-import NeighborhoodBrowser from "./components/NeighborhoodBrowser";
 import StopList from "./components/StopList";
 import JourneyOptions from "./components/JourneyOptions";
 import { getCurrentPosition, type LatLon } from "./lib/location";
@@ -19,9 +18,6 @@ export default function App() {
     const [origin, setOrigin] = useState<LatLon | null>(null);
     const [dest, setDest] = useState<LatLon | null>(null);
     const [originLabel, setOriginLabel] = useState("");
-    const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState<
-        number | null
-    >(null);
     const [destLabel, setDestLabel] = useState("");
     const [focus, setFocus] = useState<LatLon | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -319,16 +315,6 @@ export default function App() {
                     </button>
                 </div>
 
-                <NeighborhoodBrowser
-                    selectedId={selectedNeighborhoodId}
-                    onSelect={(neighborhood) => {
-                        setSelectedNeighborhoodId(neighborhood.id);
-                        setFocus({
-                            lat: neighborhood.latitude,
-                            lon: neighborhood.longitude,
-                        });
-                    }}
-                />
                 <SearchField
                     label="Origin"
                     placeholder="Search a place in Tana…"
