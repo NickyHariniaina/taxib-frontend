@@ -197,6 +197,7 @@ export default function App() {
                     originStops={originStops}
                     destStops={destStops}
                     path={road?.path ?? null}
+                    selectedNeighborhood={selectedQuartier}
                     onChange={(o, d) => {
                         setOrigin(o);
                         setDest(d);

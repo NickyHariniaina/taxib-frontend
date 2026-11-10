@@ -10,6 +10,7 @@ import {
   useMapEvents,
 } from 'react-leaflet';
 import type { Stop } from '../lib/stops';
+import type { Neighborhood } from '../lib/neighborhoods';
 import L, { type LatLngExpression } from 'leaflet';
 import { TANA, type LatLon } from '../lib/location';
 import 'leaflet/dist/leaflet.css';
@@ -41,6 +42,8 @@ export type MapProps = {
   destStops: Stop[];
   /** Ordered road geometry, drawn under the markers. Null = not loaded. */
   path: LatLon[] | null;
+  /** Currently selected quartier, shown on the map. */
+  selectedNeighborhood: Neighborhood | null;
   onChange: (origin: LatLon | null, dest: LatLon | null) => void;
   /** Tap on empty map: sets origin if unset, else destination. */
   onMapClick: (point: LatLon) => void;
@@ -72,6 +75,7 @@ export default function Map({
   originStops,
   destStops,
   path,
+  selectedNeighborhood,
   onChange,
   onMapClick,
 }: MapProps) {
@@ -139,6 +143,25 @@ export default function Map({
             },
           }}
         />
+      )}
+      {selectedNeighborhood && (
+        <CircleMarker
+          center={[
+            selectedNeighborhood.latitude,
+            selectedNeighborhood.longitude,
+          ]}
+          radius={9}
+          pathOptions={{
+            color: '#FFFFFF',
+            weight: 2,
+            fillColor: '#FC3D32',
+            fillOpacity: 0.9,
+          }}
+        >
+          <Tooltip permanent direction="top" offset={[0, -10]}>
+            {selectedNeighborhood.name}
+          </Tooltip>
+        </CircleMarker>
       )}
     </MapContainer>
   );
