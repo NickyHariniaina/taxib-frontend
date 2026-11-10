@@ -7,7 +7,7 @@ type Props = {
 };
 
 function Chips({ lines }: { lines: BusLine[] }) {
-  if (lines.length === 0) return <p className="text-xs text-stone-500">None found.</p>;
+  if (lines.length === 0) return <p className="text-xs text-stone-500">Aucune.</p>;
   return (
     <div className="flex flex-wrap gap-1.5">
       {lines.map((l) => (
@@ -38,26 +38,26 @@ export default function JourneyOptions({ originLines, destLines, loading }: Prop
     <div className="flex flex-col gap-3">
       <div>
         <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-green-400">
-          Direct buses · no transfer
+          Lignes directes · sans correspondance
         </p>
         {direct.length > 0 ? (
           <Chips lines={direct} />
         ) : (
           <p className="text-xs text-stone-400">
-            No single line covers both ends yet.
+            Aucune ligne directe entre les deux pour l'instant.
           </p>
         )}
       </div>
       <div>
-        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-stone-400">
-          Lines near origin ({originLines.length})
-        </p>
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-stone-400">
+            Lignes près du départ ({originLines.length})
+          </p>
         <Chips lines={originLines} />
       </div>
       <div>
-        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-stone-400">
-          Lines near destination ({destLines.length})
-        </p>
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-widest text-stone-400">
+            Lignes près de l'arrivée ({destLines.length})
+          </p>
         <Chips lines={destLines} />
       </div>
     </div>

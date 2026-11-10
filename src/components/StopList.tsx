@@ -22,11 +22,11 @@ export default function StopList({ title, stops, loading, onSelect }: Props) {
           ))}
         </div>
       )}
-      {!loading && stops.length === 0 && (
-        <div className="rounded-lg border border-dashed border-white/15 p-3 text-center text-xs text-stone-400">
-          No mapped stops within 500m.
-        </div>
-      )}
+        {!loading && stops.length === 0 && (
+          <div className="rounded-lg border border-dashed border-white/15 p-3 text-center text-xs text-stone-400">
+            Aucun arrêt cartographié dans un rayon de 500m.
+          </div>
+        )}
       {!loading && stops.length > 0 && (
         <ul className="flex flex-col gap-1.5">
           {stops.map((s) => (

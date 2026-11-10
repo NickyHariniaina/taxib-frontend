@@ -2,10 +2,12 @@
 import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import SearchField from "./components/SearchField";
+import QuartierSearch from "./components/QuartierSearch";
 import StopList from "./components/StopList";
 import JourneyOptions from "./components/JourneyOptions";
 import { getCurrentPosition, type LatLon } from "./lib/location";
 import type { Place } from "./lib/geocode";
+import type { Neighborhood } from "./lib/neighborhoods";
 import { findNearbyStops, type Stop } from "./lib/stops";
 import { findLinesNear, type BusLine } from "./lib/lines";
 import { formatTrip, getRoadPath, type RoadPath } from "./lib/directions";
@@ -19,6 +21,9 @@ export default function App() {
     const [dest, setDest] = useState<LatLon | null>(null);
     const [originLabel, setOriginLabel] = useState("");
     const [destLabel, setDestLabel] = useState("");
+    const [selectedQuartier, setSelectedQuartier] = useState<Neighborhood | null>(
+        null,
+    );
     const [focus, setFocus] = useState<LatLon | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [locating, setLocating] = useState(false);
@@ -34,15 +39,16 @@ export default function App() {
     const [roadLoading, setRoadLoading] = useState(false);
     const [roadError, setRoadError] = useState<string | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [quartierOpen, setQuartierOpen] = useState(false);
 
-    // Escape closes the drawer.
+    // Escape closes the drawer, unless the quartier dialog is on top.
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") setDrawerOpen(false);
+            if (e.key === "Escape" && !quartierOpen) setDrawerOpen(false);
         };
         document.addEventListener("keydown", onKey);
         return () => document.removeEventListener("keydown", onKey);
-    }, []);
+    }, [quartierOpen]);
 
     // Spike: live OSM stops + lines around each set endpoint. Debounced + aborted;
     // the future backend endpoints keep this exact UI.
@@ -84,8 +90,8 @@ export default function App() {
             } catch (e) {
                 if (e instanceof DOMException && e.name === "AbortError")
                     return;
-                setStopsError("Could not load nearby stops. Check connection.");
-                setLinesError("Could not load nearby lines. Check connection.");
+                setStopsError("Impossible de charger les arrêts à proximité. Vérifiez la connexion.");
+                setLinesError("Impossible de charger les lignes à proximité. Vérifiez la connexion.");
             } finally {
                 setStopsLoading(false);
                 setLinesLoading(false);
@@ -121,8 +127,8 @@ export default function App() {
                 setRoad(null);
                 setRoadError(
                     e instanceof Error && e.message === "route-not-found"
-                        ? "No road connects these two points."
-                        : "Road path unavailable. Check connection.",
+                        ? "Aucune route ne relie ces deux points."
+                        : "Itinéraire indisponible. Vérifiez la connexion.",
                 );
             } finally {
                 setRoadLoading(false);
@@ -145,7 +151,7 @@ export default function App() {
             setFocus(p);
             setDrawerOpen(false);
         } catch (e) {
-            setError(e instanceof Error ? e.message : "location-unavailable");
+            setError(e instanceof Error ? e.message : "Position indisponible");
         } finally {
             setLocating(false);
         }
@@ -207,7 +213,7 @@ export default function App() {
                     type="button"
                     onClick={() => setDrawerOpen((v) => !v)}
                     aria-expanded={drawerOpen}
-                    aria-label={drawerOpen ? "Close menu" : "Open menu"}
+                    aria-label={drawerOpen ? "Fermer le menu" : "Ouvrir le menu"}
                     className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-stone-900/90 shadow-2xl backdrop-blur active:scale-95"
                 >
                     <span className="relative block h-4 w-5">
@@ -246,19 +252,19 @@ export default function App() {
                     />
                     <span className="min-w-0 flex-1 truncate text-sm">
                         {originLabel || destLabel ? (
-                            <>
-                                <span className="font-semibold text-white">
-                                    {originLabel || "Where from?"}
-                                </span>
-                                <span className="text-stone-400">
-                                    {" "}
-                                    → {destLabel || "Where to?"}
-                                </span>
-                            </>
+                                <>
+                                    <span className="font-semibold text-white">
+                                        {originLabel || "Départ"}
+                                    </span>
+                                    <span className="text-stone-400">
+                                        {" "}
+                                        → {destLabel || "Arrivée"}
+                                    </span>
+                                </>
                         ) : (
-                            <span className="text-stone-400">
-                                Where in Tana are you going?
-                            </span>
+                                <span className="text-stone-400">
+                                    Où allez-vous ?
+                                </span>
                         )}
                     </span>
                 </button>
@@ -266,8 +272,8 @@ export default function App() {
                     type="button"
                     onClick={useGps}
                     disabled={locating}
-                    title="Use GPS for origin"
-                    aria-label="Use GPS for origin"
+                    title="Utiliser le GPS"
+                    aria-label="Utiliser le GPS"
                     className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-stone-900/90 text-lg shadow-2xl backdrop-blur active:scale-95 disabled:opacity-60"
                 >
                     {locating ? "…" : "◎"}
@@ -302,13 +308,13 @@ export default function App() {
                             taxib
                         </h1>
                         <p className="text-xs text-stone-400">
-                            Bus routes · Antananarivo
+                            Lignes de bus · Antananarivo
                         </p>
                     </div>
                     <button
                         type="button"
                         onClick={() => setDrawerOpen(false)}
-                        aria-label="Close menu"
+                        aria-label="Fermer le menu"
                         className="grid h-9 w-9 place-items-center rounded-xl bg-white/5 text-stone-300 ring-1 ring-white/10 active:scale-95"
                     >
                         ✕
@@ -316,8 +322,8 @@ export default function App() {
                 </div>
 
                 <SearchField
-                    label="Origin"
-                    placeholder="Search a place in Tana…"
+                    label="Départ"
+                    placeholder="Chercher un lieu à Tana…"
                     value={originLabel}
                     onPick={pickOrigin}
                     onClear={() => {
@@ -332,8 +338,8 @@ export default function App() {
                 )}
 
                 <SearchField
-                    label="Destination"
-                    placeholder="Where to?"
+                    label="Arrivée"
+                    placeholder="Vers où ?"
                     value={destLabel}
                     onPick={pickDest}
                     onClear={() => {
@@ -354,7 +360,7 @@ export default function App() {
                         disabled={locating}
                         className="flex-1 rounded-xl bg-gradient-to-br from-[#FC3D32] to-[#c22a22] px-4 py-3 text-sm font-extrabold text-white shadow-xl disabled:opacity-60"
                     >
-                        {locating ? "Locating…" : "Use GPS for origin"}
+                        {locating ? "Localisation…" : "Utiliser le GPS"}
                     </button>
                     <button
                         type="button"
@@ -364,7 +370,7 @@ export default function App() {
                             setOriginLabel(destLabel);
                             setDestLabel(originLabel);
                         }}
-                        title="Swap origin and destination"
+                        title="Échanger origine et destination"
                         className="rounded-xl bg-white/5 px-4 ring-1 ring-white/10 hover:ring-[#FC3D32]"
                     >
                         ⇅
@@ -406,7 +412,7 @@ export default function App() {
                     />
                 ) : (
                     <div className="rounded-xl border border-dashed border-white/15 p-4 text-center text-[13px] text-stone-400">
-                        Set an origin and a destination to see buses.
+                        Définissez un départ et une arrivée pour voir les bus.
                     </div>
                 )}
 
@@ -417,13 +423,13 @@ export default function App() {
                 )}
 
                 <StopList
-                    title="Stops near origin"
+                    title="Arrêts près du départ"
                     stops={originStops}
                     loading={stopsLoading && origin !== null}
                     onSelect={(s) => setFocus({ lat: s.lat, lon: s.lon })}
                 />
                 <StopList
-                    title="Stops near destination"
+                    title="Arrêts près de l'arrivée"
                     stops={destStops}
                     loading={stopsLoading && dest !== null}
                     onSelect={(s) => setFocus({ lat: s.lat, lon: s.lon })}
@@ -436,14 +442,55 @@ export default function App() {
             </aside>
 
             {/* map hint */}
-            <div className="pointer-events-none absolute bottom-4 left-1/2 z-[1000] max-w-[92vw] -translate-x-1/2 truncate rounded-full border border-white/10 bg-stone-900/90 px-4 py-1.5 text-xs whitespace-nowrap text-stone-400 backdrop-blur">
+            <div className="pointer-events-none absolute bottom-24 left-1/2 z-[1000] max-w-[92vw] -translate-x-1/2 truncate rounded-full border border-white/10 bg-stone-900/90 px-4 py-1.5 text-xs whitespace-nowrap text-stone-400 backdrop-blur sm:bottom-24">
                 <span className="hidden sm:inline">
-                    Tap map to set points · drag markers · scroll to zoom
+                    Tapez la carte pour poser les points · faites glisser les marqueurs · défilez pour zoomer
                 </span>
                 <span className="sm:hidden">
-                    Tap to set points · drag to move
+                    Tapez pour poser les points · faites glisser pour déplacer
                 </span>
             </div>
+
+            {/* map action: search a quartier */}
+            <button
+                type="button"
+                onClick={() => {
+                    setDrawerOpen(false);
+                    setQuartierOpen(true);
+                }}
+                aria-haspopup="dialog"
+                title="Chercher un quartier"
+                className="absolute right-3 bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] z-[1050] flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-stone-900/90 text-stone-200 shadow-2xl backdrop-blur transition active:scale-95 hover:text-white"
+            >
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.6-3.6" />
+                </svg>
+                <span className="text-sm font-semibold tracking-tight">
+                    Chercher un quartier
+                </span>
+            </button>
+
+            <QuartierSearch
+                open={quartierOpen}
+                onClose={() => setQuartierOpen(false)}
+                selectedId={selectedQuartier?.id ?? null}
+                onSelect={(neighborhood) => {
+                    setSelectedQuartier(neighborhood);
+                    setFocus({
+                        lat: neighborhood.latitude,
+                        lon: neighborhood.longitude,
+                    });
+                }}
+            />
         </div>
     );
 }

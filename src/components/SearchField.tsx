@@ -117,8 +117,8 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
               setOpen(false);
               onClear();
             }}
-            title="Clear"
-            aria-label={`Clear ${label}`}
+            title="Effacer"
+            aria-label={`Effacer ${label}`}
             className="rounded-xl bg-white/5 px-3 ring-1 ring-white/10 hover:ring-[#FC3D32]"
           >
             ✕
@@ -132,12 +132,16 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
           role="listbox"
           className="absolute inset-x-0 top-full z-[1100] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-stone-900 p-1 shadow-2xl"
         >
-          {loading && <li className="px-3 py-2.5 text-[13px] text-stone-400">Searching…</li>}
+          {loading && <li className="px-3 py-2.5 text-[13px] text-stone-400">Recherche…</li>}
           {!loading && failed && (
-            <li className="px-3 py-2.5 text-[13px] text-red-300">Search failed, try again.</li>
+            <li className="px-3 py-2.5 text-[13px] text-red-300">
+              Recherche échouée, réessayez.
+            </li>
           )}
           {!loading && !failed && results.length === 0 && (
-            <li className="px-3 py-2.5 text-[13px] text-stone-400">No places found in Antananarivo.</li>
+            <li className="px-3 py-2.5 text-[13px] text-stone-400">
+              Aucun lieu trouvé à Antananarivo.
+            </li>
           )}
           {!loading &&
             !failed &&
