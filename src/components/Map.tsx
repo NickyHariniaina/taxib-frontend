@@ -150,15 +150,15 @@ export default function Map({
             selectedNeighborhood.latitude,
             selectedNeighborhood.longitude,
           ]}
-          radius={9}
+          radius={12}
           pathOptions={{
             color: '#FFFFFF',
-            weight: 2,
+            weight: 3,
             fillColor: '#FC3D32',
             fillOpacity: 0.9,
           }}
         >
-          <Tooltip permanent direction="top" offset={[0, -10]}>
+          <Tooltip permanent direction="top" offset={[0, -16]}>
             {selectedNeighborhood.name}
           </Tooltip>
         </CircleMarker>

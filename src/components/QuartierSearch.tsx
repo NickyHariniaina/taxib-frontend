@@ -33,7 +33,7 @@ function highlightName(name: string, highlight: number[]): ReactNode[] {
       bufferMarked ? (
         <mark
           key={index}
-          className="rounded bg-[#FC3D32]/30 px-0.5 font-semibold text-white"
+          className="rounded bg-[#FC3D32]/40 px-0.5 font-semibold text-white"
         >
           {buffer}
         </mark>
@@ -166,20 +166,55 @@ export default function QuartierSearch({
               }
             }}
             placeholder="Chercher un quartier… ex. Ivandry"
-            className="w-full rounded-xl bg-white/5 py-3 pr-3 pl-9 text-[15px] text-stone-100 ring-1 ring-white/10 outline-none placeholder:text-stone-500 focus:ring-2 focus:ring-[#FC3D32]"
+            className="w-full rounded-xl bg-white/5 py-3 pr-9 pl-9 text-[15px] text-stone-100 ring-1 ring-white/10 outline-none placeholder:text-stone-500 focus:ring-2 focus:ring-[#FC3D32]"
           />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                setActive(0);
+              }}
+              title="Effacer"
+              aria-label="Effacer"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 h-6 w-6 shrink-0 place-items-center rounded-lg bg-white/5 text-stone-400 ring-1 ring-white/10 transition hover:text-white hover:ring-[#FC3D32] active:scale-95"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
         {error && (
-          <p className="px-2 py-3 text-center text-[13px] text-red-300">{error}</p>
+          <p className="px-2 py-3 text-center text-[13px] text-red-300">
+            {error}
+          </p>
+        )}
+
+        {loading && neighborhoods.length === 0 && (
+          <div className="space-y-2 px-2 pt-2">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="h-10 w-full animate-pulse rounded-lg bg-white/5 ring-1 ring-white/10"
+              />
+            ))}
+          </div>
         )}
 
         {!loading && !error && visible.length === 0 && (
-          <p className="px-2 py-6 text-center text-[13px] text-stone-500">
-            No quartier trouvé. Essayez un nom plus court.
-          </p>
+          <div className="px-2 py-6 text-center">
+            <span
+              aria-hidden="true"
+              className="mb-2 block text-2xl text-stone-700"
+            >
+              ⌕
+            </span>
+            <p className="px-4 py-3 text-center text-[13px] text-stone-500">
+              Aucun quartier trouvé. Essayez un nom plus court.
+            </p>
+          </div>
         )}
 
         {visible.length > 0 && (
@@ -198,11 +233,12 @@ export default function QuartierSearch({
                     type="button"
                     onMouseEnter={() => setActive(index)}
                     onClick={() => pick(item)}
-                    className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
-                      index === active
+                    className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${selected
+                      ? 'bg-[#FC3D32]/15 text-[#FC3D32] ring-1 ring-[#FC3D32]/40'
+                      : index === active
                         ? 'bg-white/10 text-white'
                         : 'text-stone-300 hover:bg-white/5'
-                    } ${selected ? 'ring-1 ring-[#FC3D32]/40' : ''}`}
+                    }`}
                   >
                     <span className="min-w-0 flex-1 truncate">
                       {highlightName(item.name, highlight)}

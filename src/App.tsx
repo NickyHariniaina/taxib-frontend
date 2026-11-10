@@ -437,8 +437,9 @@ export default function App() {
                 />
 
                 <div className="rounded-xl border border-dashed border-white/15 p-4 text-center text-[13px] text-stone-400">
-                    Search, use GPS, or tap the map: first tap sets origin, next
-                    taps set destination. Drag markers to fine-tune.
+                    Cherchez, utilisez le GPS ou tapez la carte : le premier tap
+                    définit le départ, le suivant l'arrivée. Faites glisser les
+                    marqueurs pour ajuster.
                 </div>
             </aside>
 
@@ -460,8 +461,9 @@ export default function App() {
                     setQuartierOpen(true);
                 }}
                 aria-haspopup="dialog"
+                aria-controls="quartier-dialog"
                 title="Chercher un quartier"
-                className="absolute right-3 bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] z-[1050] flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-stone-900/90 text-stone-200 shadow-2xl backdrop-blur transition active:scale-95 hover:text-white"
+                className="absolute right-3 bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] z-[1050] flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-stone-900/90 text-stone-200 shadow-2xl backdrop-blur transition hover:bg-white/5 active:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#FC3D32] focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950 hover:text-white"
             >
                 <svg
                     viewBox="0 0 24 24"
