@@ -1,0 +1,133 @@
+/** Source of truth: every other locale is checked against this shape. */
+const fr = {
+  Meta: {
+    title: 'taxib — bus à Antananarivo',
+  },
+  App: {
+    tagline: 'Lignes de bus · Antananarivo',
+    whereTo: 'Où allez-vous ?',
+    origin: 'Départ',
+    dest: 'Arrivée',
+    openMenu: 'Ouvrir le menu',
+    closeMenu: 'Fermer le menu',
+    useGps: 'Utiliser le GPS',
+    currentLocation: 'Position actuelle',
+    searchQuartier: 'Chercher un quartier',
+  },
+  Drawer: {
+    menu: 'Menu',
+    title: 'Votre trajet',
+    close: 'Fermer le menu',
+    reset: 'Réinitialiser',
+    tabOrigin: 'Départ',
+    tabDest: 'Arrivée',
+    originPlaceholder: 'D’où partez-vous ?',
+    destPlaceholder: 'Vers où ?',
+    useMyPosition: 'Utiliser ma position',
+    myPosition: 'Ma position',
+    locating: 'Localisation…',
+    swap: 'Échanger départ et arrivée',
+    replayTour: 'Revoir le tutoriel',
+    busHint: 'Définissez un départ et une arrivée pour voir les bus.',
+    language: 'Langue',
+  },
+  Search: {
+    searching: 'Recherche…',
+    failed: 'Recherche échouée, réessayez.',
+    empty: 'Aucun lieu trouvé à Antananarivo.',
+    clear: 'Effacer {label}',
+    clearField: 'Effacer',
+  },
+  Journey: {
+    direct: 'Lignes directes',
+    noneDirect: 'Aucune ligne directe entre ces deux points.',
+    all: 'Toutes les lignes',
+    nearOrigin: 'Près du départ',
+    nearDest: 'Près de l’arrivée',
+    none: 'Aucune.',
+  },
+  Stops: {
+    section: 'Arrêts proches',
+    pickOrigin: 'Définissez un départ pour voir les arrêts.',
+    pickDest: 'Définissez une arrivée pour voir les arrêts.',
+    none: 'Aucun arrêt cartographié dans un rayon de 500 m.',
+    unnamed: 'Arrêt sans nom',
+  },
+  Quartier: {
+    title: 'Chercher un quartier',
+    loading: 'Chargement des quartiers…',
+    total:
+      '{count, plural, =0 {Aucun quartier} one {# quartier} other {# quartiers}} · Antananarivo',
+    placeholder: 'Chercher un quartier… ex. Ivandry',
+    clear: 'Effacer',
+    close: 'Fermer',
+    more: '{count, plural, one {# résultat supplémentaire} other {# résultats supplémentaires}} — tapez plus pour affiner.',
+    empty: 'Aucun quartier trouvé. Essayez un nom plus court.',
+    error: 'Impossible de charger les quartiers. Vérifiez la connexion.',
+  },
+  Tour: {
+    prev: 'Étape précédente',
+    skip: 'Passer',
+    next: 'Suivant',
+    finish: 'Terminer',
+    steps: {
+      menu: {
+        title: 'Le menu',
+        body: 'Ouvrez le menu pour choisir votre départ et votre arrivée, ou revoir ce tutoriel.',
+      },
+      trip: {
+        title: 'Votre trajet',
+        body: 'Le départ et l’arrivée restent visibles ici. Touchez pour rouvrir la recherche.',
+      },
+      gps: {
+        title: 'Votre position',
+        body: 'Un appui utilise le GPS et place votre position comme point de départ.',
+      },
+      quartier: {
+        title: 'Les quartiers',
+        body: 'Cherchez un quartier par son nom, même mal orthographié. Sur la carte, le premier tap pose le départ, le suivant l’arrivée.',
+      },
+    },
+  },
+  TourPrompt: {
+    title: 'Bienvenue sur taxib',
+    body: 'Trouvez votre bus à Antananarivo en quelques secondes. On vous montre ? Quatre étapes, trente secondes.',
+    start: 'Commencer le tutoriel',
+    skip: 'Passer, je connais l’app',
+  },
+  Errors: {
+    stops: 'Impossible de charger les arrêts à proximité. Vérifiez la connexion.',
+    lines: 'Impossible de charger les lignes à proximité. Vérifiez la connexion.',
+    routeNotFound: 'Aucune route ne relie ces deux points.',
+    routeUnavailable: 'Itinéraire indisponible. Vérifiez la connexion.',
+    gpsDenied: 'Autorisez la localisation pour utiliser le GPS.',
+    gpsUnsupported: 'La géolocalisation n’est pas disponible sur cet appareil.',
+    gpsUnavailable: 'Position indisponible. Vérifiez vos réglages.',
+  },
+  Appearance: {
+    section: 'Apparence',
+    mode: 'Mode',
+    modeLabel: 'Mode d’affichage',
+    clair: 'Clair',
+    sombre: 'Sombre',
+    color: 'Couleur',
+    colorLabel: 'Couleur d’accent',
+    themes: {
+      rouge: 'Rouge',
+      bleu: 'Bleu',
+      emeraude: 'Émeraude',
+      violet: 'Violet',
+      ambre: 'Ambre',
+      rose: 'Rose',
+    },
+  },
+  Locale: {
+    label: 'Langue',
+    names: {
+      fr: 'Français',
+      en: 'English',
+    },
+  },
+} as const;
+
+export default fr;

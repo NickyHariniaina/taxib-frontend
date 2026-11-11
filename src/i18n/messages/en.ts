@@ -1,0 +1,134 @@
+import type { MessageShape } from '../types';
+
+const en = {
+  Meta: {
+    title: 'taxib — buses in Antananarivo',
+  },
+  App: {
+    tagline: 'Bus lines · Antananarivo',
+    whereTo: 'Where are you going?',
+    origin: 'From',
+    dest: 'To',
+    openMenu: 'Open menu',
+    closeMenu: 'Close menu',
+    useGps: 'Use GPS',
+    currentLocation: 'Current location',
+    searchQuartier: 'Search a neighborhood',
+  },
+  Drawer: {
+    menu: 'Menu',
+    title: 'Your trip',
+    close: 'Close menu',
+    reset: 'Reset',
+    tabOrigin: 'From',
+    tabDest: 'To',
+    originPlaceholder: 'Where do you start?',
+    destPlaceholder: 'Where to?',
+    useMyPosition: 'Use my position',
+    myPosition: 'My position',
+    locating: 'Locating…',
+    swap: 'Swap origin and destination',
+    replayTour: 'Replay the tutorial',
+    busHint: 'Set an origin and a destination to see the buses.',
+    language: 'Language',
+  },
+  Search: {
+    searching: 'Searching…',
+    failed: 'Search failed, try again.',
+    empty: 'No places found in Antananarivo.',
+    clear: 'Clear {label}',
+    clearField: 'Clear',
+  },
+  Journey: {
+    direct: 'Direct lines',
+    noneDirect: 'No direct line between these two points.',
+    all: 'All lines',
+    nearOrigin: 'Near the origin',
+    nearDest: 'Near the destination',
+    none: 'None.',
+  },
+  Stops: {
+    section: 'Nearby stops',
+    pickOrigin: 'Set an origin to see stops.',
+    pickDest: 'Set a destination to see stops.',
+    none: 'No mapped stop within 500 m.',
+    unnamed: 'Unnamed stop',
+  },
+  Quartier: {
+    title: 'Search a neighborhood',
+    loading: 'Loading neighborhoods…',
+    total:
+      '{count, plural, =0 {No neighborhood} one {# neighborhood} other {# neighborhoods}} · Antananarivo',
+    placeholder: 'Search a neighborhood… e.g. Ivandry',
+    clear: 'Clear',
+    close: 'Close',
+    more: '{count, plural, one {# more result} other {# more results}} — type more to narrow down.',
+    empty: 'No neighborhood found. Try a shorter name.',
+    error: 'Couldn’t load neighborhoods. Check your connection.',
+  },
+  Tour: {
+    prev: 'Previous step',
+    skip: 'Skip',
+    next: 'Next',
+    finish: 'Done',
+    steps: {
+      menu: {
+        title: 'The menu',
+        body: 'Open the menu to pick your origin and destination, or replay this tutorial.',
+      },
+      trip: {
+        title: 'Your trip',
+        body: 'Origin and destination stay visible here. Tap to open the search again.',
+      },
+      gps: {
+        title: 'Your location',
+        body: 'One tap uses GPS and sets your position as the origin.',
+      },
+      quartier: {
+        title: 'Neighborhoods',
+        body: 'Search a neighborhood by name, even if it’s misspelled. On the map, the first tap sets the origin, the next one the destination.',
+      },
+    },
+  },
+  TourPrompt: {
+    title: 'Welcome to taxib',
+    body: 'Find your bus in Antananarivo in seconds. Want a quick look? Four steps, thirty seconds.',
+    start: 'Start the tutorial',
+    skip: 'Skip, I know the app',
+  },
+  Errors: {
+    stops: 'Couldn’t load nearby stops. Check your connection.',
+    lines: 'Couldn’t load nearby lines. Check your connection.',
+    routeNotFound: 'No road connects these two points.',
+    routeUnavailable: 'Directions unavailable. Check your connection.',
+    gpsDenied: 'Allow location access to use GPS.',
+    gpsUnsupported: 'Geolocation isn’t available on this device.',
+    gpsUnavailable: 'Position unavailable. Check your settings.',
+  },
+  Appearance: {
+    section: 'Appearance',
+    mode: 'Mode',
+    modeLabel: 'Display mode',
+    clair: 'Light',
+    sombre: 'Dark',
+    color: 'Color',
+    colorLabel: 'Accent color',
+    themes: {
+      rouge: 'Red',
+      bleu: 'Blue',
+      emeraude: 'Emerald',
+      violet: 'Violet',
+      ambre: 'Amber',
+      rose: 'Rose',
+    },
+  },
+  Locale: {
+    label: 'Language',
+    names: {
+      fr: 'Français',
+      en: 'English',
+    },
+  },
+} as const satisfies MessageShape;
+
+export default en;
