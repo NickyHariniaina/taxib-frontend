@@ -8,6 +8,7 @@ import {
 import Modal from './Modal';
 import { getNeighborhoods, type Neighborhood } from '../lib/neighborhoods';
 import { searchByName } from '../lib/fuzzy';
+import { useTranslations } from '../i18n';
 
 type Props = {
   open: boolean;
@@ -33,7 +34,7 @@ function highlightName(name: string, highlight: number[]): ReactNode[] {
       bufferMarked ? (
         <mark
           key={index}
-          className="rounded bg-[#FC3D32]/40 px-0.5 font-semibold text-white"
+          className="rounded bg-brand/40 px-0.5 font-semibold text-ink-strong"
         >
           {buffer}
         </mark>
@@ -67,9 +68,10 @@ export default function QuartierSearch({
   onSelect,
   selectedId,
 }: Props) {
+  const t = useTranslations('Quartier');
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
 
@@ -81,7 +83,7 @@ export default function QuartierSearch({
       .then(setNeighborhoods)
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === 'AbortError') return;
-        setError('Impossible de charger les quartiers. Vérifiez la connexion.');
+        setFailed(true);
       })
       .finally(() => setLoading(false));
 
@@ -112,27 +114,25 @@ export default function QuartierSearch({
     <Modal
       open={open}
       onClose={onClose}
-      title="Chercher un quartier"
+      title={t('title')}
       dialogId="quartier-dialog"
     >
-      <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 pt-4 pb-3">
+      <div className="flex items-start justify-between gap-3 border-b border-line px-5 pt-4 pb-3">
         <div className="min-w-0">
-          <h2 className="text-base font-bold tracking-tight text-white">
-            Chercher un quartier
+          <h2 className="text-base font-bold tracking-tight text-ink-strong">
+            {t('title')}
           </h2>
-          <p className="mt-0.5 truncate text-xs text-stone-400">
+          <p className="mt-0.5 truncate text-xs text-muted">
             {loading
-              ? 'Chargement des quartiers…'
-              : `${neighborhoods.length} quartier${
-                  neighborhoods.length > 1 ? 's' : ''
-                } · Antananarivo`}
+              ? t('loading')
+              : t('total', { count: neighborhoods.length })}
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Fermer"
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/5 text-stone-300 ring-1 ring-white/10 transition hover:ring-[#FC3D32] active:scale-95"
+          aria-label={t('close')}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-raised text-ink ring-1 ring-line transition hover:ring-brand active:scale-95"
         >
           ✕
         </button>
@@ -142,7 +142,7 @@ export default function QuartierSearch({
         <div className="relative">
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-stone-500"
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-faint"
           >
             ⌕
           </span>
@@ -170,8 +170,8 @@ export default function QuartierSearch({
                 pick(visible[active].item);
               }
             }}
-            placeholder="Chercher un quartier… ex. Ivandry"
-            className="w-full rounded-xl bg-white/5 py-3 pr-9 pl-9 text-[15px] text-stone-100 ring-1 ring-white/10 outline-none placeholder:text-stone-500 focus:ring-2 focus:ring-[#FC3D32]"
+            placeholder={t('placeholder')}
+            className="w-full rounded-xl bg-raised py-3 pr-9 pl-9 text-[15px] text-ink ring-1 ring-line outline-none placeholder:text-faint focus:ring-2 focus:ring-brand"
           />
           {query && (
             <button
@@ -180,9 +180,9 @@ export default function QuartierSearch({
                 setQuery('');
                 setActive(0);
               }}
-              title="Effacer"
-              aria-label="Effacer"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 h-6 w-6 shrink-0 place-items-center rounded-lg bg-white/5 text-stone-400 ring-1 ring-white/10 transition hover:text-white hover:ring-[#FC3D32] active:scale-95"
+              title={t('clear')}
+              aria-label={t('clear')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 h-6 w-6 shrink-0 place-items-center rounded-lg bg-raised text-muted ring-1 ring-line transition hover:text-ink-strong hover:ring-brand active:scale-95"
             >
               ✕
             </button>
@@ -191,9 +191,9 @@ export default function QuartierSearch({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        {error && (
-          <p className="px-2 py-3 text-center text-[13px] text-red-300">
-            {error}
+        {failed && (
+          <p className="px-2 py-3 text-center text-[13px] text-danger-ink">
+            {t('error')}
           </p>
         )}
 
@@ -202,22 +202,22 @@ export default function QuartierSearch({
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="h-10 w-full animate-pulse rounded-lg bg-white/5 ring-1 ring-white/10"
+                className="h-10 w-full animate-pulse rounded-lg bg-raised ring-1 ring-line"
               />
             ))}
           </div>
         )}
 
-        {!loading && !error && visible.length === 0 && (
+        {!loading && !failed && visible.length === 0 && (
           <div className="px-2 py-6 text-center">
             <span
               aria-hidden="true"
-              className="mb-2 block text-2xl text-stone-700"
+              className="mb-2 block text-2xl text-ghost"
             >
               ⌕
             </span>
-            <p className="px-4 py-3 text-center text-[13px] text-stone-500">
-              Aucun quartier trouvé. Essayez un nom plus court.
+            <p className="px-4 py-3 text-center text-[13px] text-faint">
+              {t('empty')}
             </p>
           </div>
         )}
@@ -239,17 +239,17 @@ export default function QuartierSearch({
                     onMouseEnter={() => setActive(index)}
                     onClick={() => pick(item)}
                     className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${selected
-                      ? 'bg-[#FC3D32]/15 text-[#FC3D32] ring-1 ring-[#FC3D32]/40'
+                      ? 'bg-brand/15 text-brand ring-1 ring-brand/40'
                       : index === active
-                        ? 'bg-white/10 text-white'
-                        : 'text-stone-300 hover:bg-white/5'
+                        ? 'bg-raised-strong text-ink-strong'
+                        : 'text-ink hover:bg-raised'
                     }`}
                   >
                     <span className="min-w-0 flex-1 truncate">
                       {highlightName(item.name, highlight)}
                     </span>
                     {selected && (
-                      <span className="shrink-0 text-xs text-[#FC3D32]">
+                      <span className="shrink-0 text-xs text-brand">
                         ●
                       </span>
                     )}
@@ -261,8 +261,8 @@ export default function QuartierSearch({
         )}
 
         {results.length > MAX_RESULTS && (
-          <p className="px-2 pt-3 text-center text-[11px] text-stone-600">
-            {results.length - MAX_RESULTS} de plus — tapez plus pour affiner.
+          <p className="px-2 pt-3 text-center text-[11px] text-ghost">
+            {t('more', { count: results.length - MAX_RESULTS })}
           </p>
         )}
       </div>

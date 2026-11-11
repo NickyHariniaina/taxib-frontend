@@ -6,38 +6,22 @@ import {
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
+import { useTranslations } from '../i18n';
 
 type Step = {
   /** Value of the `data-tour` attribute of the element to highlight. */
   target: string;
-  title: string;
-  body: string;
+  /** Message key under `Tour.steps`. */
+  key: 'menu' | 'trip' | 'gps' | 'quartier';
   /** Force the card to one side; otherwise it picks the roomier side. */
   placement?: 'above' | 'below';
 };
 
 const STEPS: Step[] = [
-  {
-    target: 'menu',
-    title: 'Le menu',
-    body: 'Ouvrez le menu pour choisir votre départ et votre arrivée, ou revoir ce tutoriel.',
-  },
-  {
-    target: 'trip',
-    title: 'Votre trajet',
-    body: 'Le départ et l’arrivée restent visibles ici. Touchez pour rouvrir la recherche.',
-  },
-  {
-    target: 'gps',
-    title: 'Votre position',
-    body: 'Un appui utilise le GPS et place votre position comme point de départ.',
-  },
-  {
-    target: 'quartier',
-    title: 'Les quartiers',
-    body: 'Cherchez un quartier par son nom, même mal orthographié. Sur la carte, le premier tap pose le départ, le suivant l’arrivée.',
-    placement: 'above',
-  },
+  { target: 'menu', key: 'menu' },
+  { target: 'trip', key: 'trip' },
+  { target: 'gps', key: 'gps' },
+  { target: 'quartier', key: 'quartier', placement: 'above' },
 ];
 
 const CARD_MAX_W = 340;
@@ -95,6 +79,7 @@ function tooltipStyle(rect: DOMRect | null, step: Step): CSSProperties {
  * only ways forward are the card controls (mouse, keyboard or screen reader).
  */
 export default function Tour({ onClose, onFinish }: Props) {
+  const t = useTranslations('Tour');
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -179,7 +164,7 @@ export default function Tour({ onClose, onFinish }: Props) {
       {rect && (
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed z-[1500] rounded-2xl ring-2 ring-[#FC3D32] shadow-[0_0_0_9999px_rgba(12,10,9,0.72)] transition-[top,left,width,height] duration-300 ease-out motion-reduce:transition-none"
+          className="pointer-events-none fixed z-[1500] rounded-2xl ring-2 ring-brand shadow-[0_0_0_9999px_rgba(12,10,9,0.72)] transition-[top,left,width,height] duration-300 ease-out motion-reduce:transition-none"
           style={{
             top: rect.top - SPOT_PAD,
             left: rect.left - SPOT_PAD,
@@ -197,7 +182,7 @@ export default function Tour({ onClose, onFinish }: Props) {
         aria-labelledby="tour-step-title"
         onKeyDown={trapTab}
         style={tooltipStyle(rect, step)}
-        className="fixed z-[1502] rounded-2xl border border-white/10 bg-stone-900/95 p-4 shadow-2xl backdrop-blur-xl outline-none animate-[cardIn_220ms_ease-out] motion-reduce:animate-none"
+        className="fixed z-[1502] rounded-2xl border border-line bg-panel/95 p-4 shadow-2xl backdrop-blur-xl outline-none animate-[cardIn_220ms_ease-out] motion-reduce:animate-none"
       >
         <div className="flex items-center justify-between gap-2">
           <span className="flex items-center gap-1" aria-hidden="true">
@@ -205,24 +190,24 @@ export default function Tour({ onClose, onFinish }: Props) {
               <span
                 key={s.target}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === index ? 'w-5 bg-[#FC3D32]' : 'w-1.5 bg-white/20'
+                  i === index ? 'w-5 bg-brand' : 'w-1.5 bg-raised-strong'
                 }`}
               />
             ))}
           </span>
-          <span className="font-mono text-[11px] text-stone-500">
+          <span className="font-mono text-[11px] text-faint">
             {index + 1}/{STEPS.length}
           </span>
         </div>
 
         <h3
           id="tour-step-title"
-          className="mt-3 text-[15px] font-bold tracking-tight text-white"
+          className="mt-3 text-[15px] font-bold tracking-tight text-ink-strong"
         >
-          {step.title}
+          {t(`steps.${step.key}.title`)}
         </h3>
-        <p className="mt-1 text-[13px] leading-relaxed text-stone-400">
-          {step.body}
+        <p className="mt-1 text-[13px] leading-relaxed text-muted">
+          {t(`steps.${step.key}.body`)}
         </p>
 
         <div className="mt-4 flex items-center gap-2">
@@ -230,8 +215,8 @@ export default function Tour({ onClose, onFinish }: Props) {
             <button
               type="button"
               onClick={back}
-              aria-label="Étape précédente"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/5 text-stone-300 ring-1 ring-white/10 transition hover:bg-white/10 active:scale-95"
+              aria-label={t('prev')}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-raised text-ink ring-1 ring-line transition hover:bg-raised-strong active:scale-95"
             >
               ←
             </button>
@@ -239,16 +224,16 @@ export default function Tour({ onClose, onFinish }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="ml-auto rounded-lg px-2.5 py-2 text-[12px] font-semibold text-stone-400 transition hover:text-white"
+            className="ml-auto rounded-lg px-2.5 py-2 text-[12px] font-semibold text-muted transition hover:text-ink-strong"
           >
-            Passer
+            {t('skip')}
           </button>
           <button
             type="button"
             onClick={next}
-            className="rounded-lg bg-gradient-to-br from-[#FC3D32] to-[#c22a22] px-4 py-2 text-[13px] font-extrabold text-white shadow-lg transition active:scale-95"
+            className="rounded-lg bg-gradient-to-br from-brand to-brand-deep px-4 py-2 text-[13px] font-extrabold text-ink-strong shadow-lg transition active:scale-95"
           >
-            {last ? 'Terminer' : 'Suivant'}
+            {last ? t('finish') : t('next')}
           </button>
         </div>
       </div>

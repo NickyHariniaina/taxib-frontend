@@ -2,7 +2,8 @@ import type { LatLon } from './location';
 
 export type Stop = {
   id: string;
-  name: string;
+  /** `null` when OSM has neither a name nor a ref; the UI supplies a label. */
+  name: string | null;
   distanceM: number;
 } & LatLon;
 
@@ -61,7 +62,7 @@ export async function findNearbyStops(
     const p = { lat: el.lat, lon: el.lon };
     stops.push({
       id: key,
-      name: el.tags?.name ?? el.tags?.ref ?? 'Arrêt sans nom',
+      name: el.tags?.name ?? el.tags?.ref ?? null,
       distanceM: Math.round(haversineM(center, p)),
       ...p,
     });

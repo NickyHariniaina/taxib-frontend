@@ -1,6 +1,7 @@
 /* eslint-disable react/set-state-in-effect -- field mirrors map/GPS/swap changes and async search results by design */
 import { useEffect, useId, useRef, useState } from 'react';
 import { searchPlaces, type Place } from '../lib/geocode';
+import { useTranslations } from '../i18n';
 
 type Props = {
   label: string;
@@ -24,6 +25,7 @@ export default function SearchField({
   onClear,
   bare = false,
 }: Props) {
+  const t = useTranslations('Search');
   const [text, setText] = useState(value);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -88,7 +90,7 @@ export default function SearchField({
         className={
           bare
             ? 'sr-only'
-            : 'mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-stone-400'
+            : 'mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-muted'
         }
       >
         {label}
@@ -121,8 +123,8 @@ export default function SearchField({
           }}
           className={
             bare
-              ? 'min-w-0 flex-1 rounded-lg bg-transparent px-1 py-3 text-sm text-stone-100 outline-none placeholder:text-stone-500 focus-visible:outline-none'
-              : 'min-w-0 flex-1 rounded-xl bg-white/5 px-3 py-2.5 text-sm text-stone-100 ring-1 ring-white/10 outline-none placeholder:text-stone-500 focus:ring-[#FC3D32]'
+              ? 'min-w-0 flex-1 rounded-lg bg-transparent px-1 py-3 text-sm text-ink outline-none placeholder:text-faint focus-visible:outline-none'
+              : 'min-w-0 flex-1 rounded-xl bg-raised px-3 py-2.5 text-sm text-ink ring-1 ring-line outline-none placeholder:text-faint focus:ring-brand'
           }
         />
         {text && (
@@ -134,12 +136,12 @@ export default function SearchField({
               setOpen(false);
               onClear();
             }}
-            title="Effacer"
-            aria-label={`Effacer ${label}`}
+            title={t('clearField')}
+            aria-label={t('clear', { label })}
             className={
               bare
-                ? 'grid h-6 w-6 shrink-0 place-items-center rounded-full text-stone-500 transition hover:bg-white/10 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC3D32]'
-                : 'rounded-xl bg-white/5 px-3 text-stone-300 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white hover:ring-[#FC3D32] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC3D32]'
+                ? 'grid h-6 w-6 shrink-0 place-items-center rounded-full text-faint transition hover:bg-raised-strong hover:text-ink-strong active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
+                : 'rounded-xl bg-raised px-3 text-ink ring-1 ring-line transition hover:bg-raised-strong hover:text-ink-strong hover:ring-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand'
             }
           >
             ✕
@@ -151,17 +153,17 @@ export default function SearchField({
         <ul
           id={`${listId}-list`}
           role="listbox"
-          className="absolute inset-x-0 top-full z-[1350] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-stone-900 p-1 shadow-2xl"
+          className="absolute inset-x-0 top-full z-[1350] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-line bg-panel p-1 shadow-2xl"
         >
-          {loading && <li className="px-3 py-2.5 text-[13px] text-stone-400">Recherche…</li>}
+          {loading && <li className="px-3 py-2.5 text-[13px] text-muted">{t('searching')}</li>}
           {!loading && failed && (
-            <li className="px-3 py-2.5 text-[13px] text-red-300">
-              Recherche échouée, réessayez.
+            <li className="px-3 py-2.5 text-[13px] text-danger-ink">
+              {t('failed')}
             </li>
           )}
           {!loading && !failed && results.length === 0 && (
-            <li className="px-3 py-2.5 text-[13px] text-stone-400">
-              Aucun lieu trouvé à Antananarivo.
+            <li className="px-3 py-2.5 text-[13px] text-muted">
+              {t('empty')}
             </li>
           )}
           {!loading &&
@@ -173,10 +175,10 @@ export default function SearchField({
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => pick(p)}
                   onMouseEnter={() => setActive(i)}
-                  className={`w-full rounded-lg px-3 py-2 text-left ${i === active ? 'bg-white/10' : ''}`}
+                  className={`w-full rounded-lg px-3 py-2 text-left ${i === active ? 'bg-raised-strong' : ''}`}
                 >
-                  <span className="block text-[13px] font-semibold text-stone-100">{p.name}</span>
-                  <small className="block truncate text-xs text-stone-400">{p.displayName}</small>
+                  <span className="block text-[13px] font-semibold text-ink">{p.name}</span>
+                  <small className="block truncate text-xs text-muted">{p.displayName}</small>
                 </button>
               </li>
             ))}

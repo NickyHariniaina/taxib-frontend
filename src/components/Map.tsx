@@ -11,6 +11,8 @@ import {
 } from 'react-leaflet';
 import type { Stop } from '../lib/stops';
 import type { Neighborhood } from '../lib/neighborhoods';
+import { useAppearance } from '../lib/useAppearance';
+import { useFormatter, useTranslations } from '../i18n';
 import L, { type LatLngExpression } from 'leaflet';
 import { TANA, type LatLon } from '../lib/location';
 import 'leaflet/dist/leaflet.css';
@@ -79,6 +81,9 @@ export default function Map({
   onChange,
   onMapClick,
 }: MapProps) {
+  const { accentColor } = useAppearance();
+  const t = useTranslations('Stops');
+  const format = useFormatter();
   const center = useMemo<LatLngExpression>(() => [TANA.lat, TANA.lon], []);
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -91,7 +96,7 @@ export default function Map({
       {path && path.length > 1 && (
         <Polyline
           positions={path.map((p) => [p.lat, p.lon] as [number, number])}
-          pathOptions={{ color: '#ef4444', weight: 7, opacity: 0.9 }}
+          pathOptions={{ color: accentColor, weight: 7, opacity: 0.9 }}
         />
       )}
       {originStops.map((s) => (
@@ -102,7 +107,13 @@ export default function Map({
           pathOptions={{ color: '#22c55e', weight: 2, fillColor: '#22c55e', fillOpacity: 0.7 }}
         >
           <Tooltip direction="top" offset={[0, -6]}>
-            {s.name} · {s.distanceM}m
+            {s.name ?? t('unnamed')} ·{' '}
+            {format.number(s.distanceM, {
+              style: 'unit',
+              unit: 'meter',
+              unitDisplay: 'short',
+              maximumFractionDigits: 0,
+            })}
           </Tooltip>
         </CircleMarker>
       ))}
@@ -114,7 +125,13 @@ export default function Map({
           pathOptions={{ color: '#38bdf8', weight: 2, fillColor: '#38bdf8', fillOpacity: 0.7 }}
         >
           <Tooltip direction="top" offset={[0, -6]}>
-            {s.name} · {s.distanceM}m
+            {s.name ?? t('unnamed')} ·{' '}
+            {format.number(s.distanceM, {
+              style: 'unit',
+              unit: 'meter',
+              unitDisplay: 'short',
+              maximumFractionDigits: 0,
+            })}
           </Tooltip>
         </CircleMarker>
       ))}
@@ -154,7 +171,7 @@ export default function Map({
           pathOptions={{
             color: '#FFFFFF',
             weight: 3,
-            fillColor: '#FC3D32',
+            fillColor: accentColor,
             fillOpacity: 0.9,
           }}
         >

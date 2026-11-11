@@ -1,4 +1,5 @@
 import Modal from './Modal';
+import { useTranslations } from '../i18n';
 
 type Props = {
   open: boolean;
@@ -8,11 +9,12 @@ type Props = {
 
 /** First-visit welcome: offers the guided tour or lets the user skip it. */
 export default function TourPrompt({ open, onStart, onSkip }: Props) {
+  const t = useTranslations('TourPrompt');
   return (
     <Modal
       open={open}
       onClose={onSkip}
-      title="Bienvenue sur taxib"
+      title={t('title')}
       dialogId="tour-dialog"
     >
       <div className="px-6 pt-7 pb-5 text-center">
@@ -23,12 +25,11 @@ export default function TourPrompt({ open, onStart, onSkip }: Props) {
           height={56}
           className="mx-auto h-14 w-14 rounded-2xl shadow-xl"
         />
-        <h2 className="mt-4 text-lg font-bold tracking-tight text-white">
-          Bienvenue sur taxib
+        <h2 className="mt-4 text-lg font-bold tracking-tight text-ink-strong">
+          {t('title')}
         </h2>
-        <p className="mx-auto mt-2 max-w-[34ch] text-[13px] leading-relaxed text-stone-400">
-          Trouvez votre bus à Antananarivo en quelques secondes. On vous
-          montre ? Quatre étapes, trente secondes.
+        <p className="mx-auto mt-2 max-w-[34ch] text-[13px] leading-relaxed text-muted">
+          {t('body')}
         </p>
       </div>
 
@@ -37,16 +38,16 @@ export default function TourPrompt({ open, onStart, onSkip }: Props) {
           data-autofocus
           type="button"
           onClick={onStart}
-          className="rounded-xl bg-gradient-to-br from-[#FC3D32] to-[#c22a22] px-4 py-3 text-sm font-extrabold text-white shadow-xl transition active:scale-[0.99]"
+          className="rounded-xl bg-gradient-to-br from-brand to-brand-deep px-4 py-3 text-sm font-extrabold text-ink-strong shadow-xl transition active:scale-[0.99]"
         >
-          Commencer le tutoriel
+          {t('start')}
         </button>
         <button
           type="button"
           onClick={onSkip}
-          className="rounded-xl px-4 py-2.5 text-[13px] font-semibold text-stone-400 transition hover:text-white"
+          className="rounded-xl px-4 py-2.5 text-[13px] font-semibold text-muted transition hover:text-ink-strong"
         >
-          Passer, je connais l'app
+          {t('skip')}
         </button>
       </div>
     </Modal>

@@ -1,5 +1,6 @@
 import { directLines, type BusLine } from '../lib/lines';
 import { Chip, SectionLabel } from './ui';
+import { useTranslations } from '../i18n';
 
 type Props = {
   originLines: BusLine[];
@@ -20,16 +21,17 @@ function LineChips({ lines }: { lines: BusLine[] }) {
 }
 
 function LineGroup({ title, lines }: { title: string; lines: BusLine[] }) {
+  const t = useTranslations('Journey');
   return (
     <div>
-      <p className="mb-1.5 text-[11px] font-medium text-stone-500">
+      <p className="mb-1.5 text-[11px] font-medium text-faint">
         {title}{' '}
-        <span className="tabular-nums text-stone-600">({lines.length})</span>
+        <span className="tabular-nums text-ghost">({lines.length})</span>
       </p>
       {lines.length > 0 ? (
         <LineChips lines={lines} />
       ) : (
-        <p className="text-[12px] text-stone-600">Aucune.</p>
+        <p className="text-[12px] text-ghost">{t('none')}</p>
       )}
     </div>
   );
@@ -37,11 +39,12 @@ function LineGroup({ title, lines }: { title: string; lines: BusLine[] }) {
 
 /** Direct (no-transfer) line candidates + per-endpoint coverage. Transfers need route members (next step). */
 export default function JourneyOptions({ originLines, destLines, loading }: Props) {
+  const t = useTranslations('Journey');
   if (loading) {
     return (
       <div className="space-y-2">
-        <div className="h-3 w-28 animate-pulse rounded bg-white/10" />
-        <div className="h-7 w-full animate-pulse rounded-lg bg-white/5" />
+        <div className="h-3 w-28 animate-pulse rounded bg-raised-strong" />
+        <div className="h-7 w-full animate-pulse rounded-lg bg-raised" />
       </div>
     );
   }
@@ -57,21 +60,21 @@ export default function JourneyOptions({ originLines, destLines, loading }: Prop
             aria-hidden="true"
             className="h-1.5 w-1.5 rounded-full bg-emerald-400"
           />
-          Lignes directes
+          {t('direct')}
         </SectionLabel>
         {direct.length > 0 ? (
           <LineChips lines={direct} />
         ) : (
-          <p className="text-[12px] text-stone-500">
-            Aucune ligne directe entre ces deux points.
+          <p className="text-[12px] text-faint">
+            {t('noneDirect')}
           </p>
         )}
       </section>
 
       <details className="group">
-        <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-lg py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500 transition hover:text-stone-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC3D32] [&::-webkit-details-marker]:hidden">
-          Toutes les lignes
-          <span className="tabular-nums font-medium text-stone-600">
+        <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-lg py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-faint transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand [&::-webkit-details-marker]:hidden">
+          {t('all')}
+          <span className="tabular-nums font-medium text-ghost">
             {totalRefs}
           </span>
           <svg
@@ -88,8 +91,8 @@ export default function JourneyOptions({ originLines, destLines, loading }: Prop
           </svg>
         </summary>
         <div className="mt-2 space-y-3 px-0.5">
-          <LineGroup title="Près du départ" lines={originLines} />
-          <LineGroup title="Près de l’arrivée" lines={destLines} />
+          <LineGroup title={t('nearOrigin')} lines={originLines} />
+          <LineGroup title={t('nearDest')} lines={destLines} />
         </div>
       </details>
     </div>
