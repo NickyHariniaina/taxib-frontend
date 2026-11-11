@@ -495,8 +495,8 @@ export default function App() {
                     aria-hidden="true"
                     className="h-5 w-5"
                 >
-                    <path d="M12 22c-4 0-8-4-8-8V6a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v8c0 4-4 8-8 8Z" />
-                    <circle cx="12" cy="10" r="2" fill="currentColor" />
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-4.35-4.35" />
                 </svg>
             </button>
 
