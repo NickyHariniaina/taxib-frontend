@@ -15,6 +15,8 @@ type Props = {
   onClose: () => void;
   onSelect: (neighborhood: Neighborhood) => void;
   selectedId: number | null;
+  /** Removes the current selection from the map. */
+  onClear: () => void;
 };
 
 const MAX_RESULTS = 60;
@@ -67,6 +69,7 @@ export default function QuartierSearch({
   onClose,
   onSelect,
   selectedId,
+  onClear,
 }: Props) {
   const t = useTranslations('Quartier');
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
@@ -249,8 +252,25 @@ export default function QuartierSearch({
                       {highlightName(item.name, highlight)}
                     </span>
                     {selected && (
-                      <span className="shrink-0 text-xs text-brand">
-                        ●
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        aria-label={t('remove')}
+                        title={t('remove')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onClear();
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onClear();
+                          }
+                        }}
+                        className="grid h-6 w-6 shrink-0 place-items-center rounded-lg text-brand transition hover:bg-raised-strong active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                      >
+                        ✕
                       </span>
                     )}
                   </button>

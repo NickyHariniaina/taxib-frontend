@@ -62,6 +62,7 @@ const en = {
     placeholder: 'Search a neighborhood… e.g. Ivandry',
     clear: 'Clear',
     close: 'Close',
+    remove: 'Remove the neighborhood',
     more: '{count, plural, one {# more result} other {# more results}} — type more to narrow down.',
     empty: 'No neighborhood found. Try a shorter name.',
     error: 'Couldn’t load neighborhoods. Check your connection.',

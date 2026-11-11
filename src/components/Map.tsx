@@ -13,7 +13,7 @@ import type { Stop } from '../lib/stops';
 import type { Neighborhood } from '../lib/neighborhoods';
 import { useAppearance } from '../lib/useAppearance';
 import { useFormatter, useTranslations } from '../i18n';
-import L, { type LatLngExpression } from 'leaflet';
+import L, { type LatLngExpression, type LeafletMouseEvent } from 'leaflet';
 import { TANA, type LatLon } from '../lib/location';
 import 'leaflet/dist/leaflet.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -46,6 +46,8 @@ export type MapProps = {
   path: LatLon[] | null;
   /** Currently selected quartier, shown on the map. */
   selectedNeighborhood: Neighborhood | null;
+  /** Removes the selected quartier mark. */
+  onClearNeighborhood: () => void;
   onChange: (origin: LatLon | null, dest: LatLon | null) => void;
   /** Tap on empty map: sets origin if unset, else destination. */
   onMapClick: (point: LatLon) => void;
@@ -70,6 +72,14 @@ function ClickSetter({ onMapClick }: { onMapClick: (point: LatLon) => void }) {
   return null;
 }
 
+/**
+ * Circle markers are Leaflet paths, and paths bubble clicks to the map. Without
+ * this guard a tap on a stop would also set an endpoint.
+ */
+function stopMapClick(e: LeafletMouseEvent) {
+  L.DomEvent.stopPropagation(e.originalEvent);
+}
+
 export default function Map({
   origin,
   dest,
@@ -78,6 +88,7 @@ export default function Map({
   destStops,
   path,
   selectedNeighborhood,
+  onClearNeighborhood,
   onChange,
   onMapClick,
 }: MapProps) {
@@ -105,6 +116,7 @@ export default function Map({
           center={[s.lat, s.lon]}
           radius={6}
           pathOptions={{ color: '#22c55e', weight: 2, fillColor: '#22c55e', fillOpacity: 0.7 }}
+          eventHandlers={{ click: stopMapClick }}
         >
           <Tooltip direction="top" offset={[0, -6]}>
             {s.name ?? t('unnamed')} ·{' '}
@@ -123,6 +135,7 @@ export default function Map({
           center={[s.lat, s.lon]}
           radius={6}
           pathOptions={{ color: '#38bdf8', weight: 2, fillColor: '#38bdf8', fillOpacity: 0.7 }}
+          eventHandlers={{ click: stopMapClick }}
         >
           <Tooltip direction="top" offset={[0, -6]}>
             {s.name ?? t('unnamed')} ·{' '}
@@ -163,6 +176,7 @@ export default function Map({
       )}
       {selectedNeighborhood && (
         <CircleMarker
+          className="cursor-pointer"
           center={[
             selectedNeighborhood.latitude,
             selectedNeighborhood.longitude,
@@ -173,6 +187,12 @@ export default function Map({
             weight: 3,
             fillColor: accentColor,
             fillOpacity: 0.9,
+          }}
+          eventHandlers={{
+            click: (e) => {
+              L.DomEvent.stopPropagation(e.originalEvent);
+              onClearNeighborhood();
+            },
           }}
         >
           <Tooltip permanent direction="top" offset={[0, -16]}>

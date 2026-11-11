@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import QuartierSearch from "./components/QuartierSearch";
+import QuartierChip from "./components/QuartierChip";
 import Tour from "./components/Tour";
 import TourPrompt from "./components/TourPrompt";
 import TripDrawer from "./components/TripDrawer";
@@ -216,6 +217,9 @@ export default function App() {
         setDestLabel("");
     };
 
+    /** Removes the quartier mark from the map. */
+    const clearQuartier = () => setSelectedQuartier(null);
+
     // GPS labels are stored as a sentinel so they follow a language switch.
     const originText =
         originLabel === GPS_LABEL ? t("currentLocation") : originLabel;
@@ -233,6 +237,7 @@ export default function App() {
                     destStops={destStops}
                     path={road?.path ?? null}
                     selectedNeighborhood={selectedQuartier}
+                    onClearNeighborhood={clearQuartier}
                     onChange={(o, d) => {
                         setOrigin(o);
                         setDest(d);
@@ -398,10 +403,19 @@ export default function App() {
                 </svg>
             </button>
 
+            {/* selected quartier: name + remove */}
+            {selectedQuartier && (
+                <QuartierChip
+                    name={selectedQuartier.name}
+                    onClear={clearQuartier}
+                />
+            )}
+
             <QuartierSearch
                 open={quartierOpen}
                 onClose={() => setQuartierOpen(false)}
                 selectedId={selectedQuartier?.id ?? null}
+                onClear={clearQuartier}
                 onSelect={(neighborhood) => {
                     setSelectedQuartier(neighborhood);
                     setFocus({
