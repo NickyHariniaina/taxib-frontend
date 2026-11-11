@@ -220,6 +220,17 @@ export default function App() {
     /** Removes the quartier mark from the map. */
     const clearQuartier = () => setSelectedQuartier(null);
 
+    /** Removes one endpoint and its label; shared by the drawer and the map. */
+    const clearOrigin = () => {
+        setOrigin(null);
+        setOriginLabel("");
+    };
+
+    const clearDest = () => {
+        setDest(null);
+        setDestLabel("");
+    };
+
     // GPS labels are stored as a sentinel so they follow a language switch.
     const originText =
         originLabel === GPS_LABEL ? t("currentLocation") : originLabel;
@@ -238,6 +249,8 @@ export default function App() {
                     path={road?.path ?? null}
                     selectedNeighborhood={selectedQuartier}
                     onClearNeighborhood={clearQuartier}
+                    onClearOrigin={clearOrigin}
+                    onClearDest={clearDest}
                     onChange={(o, d) => {
                         setOrigin(o);
                         setDest(d);
@@ -356,14 +369,8 @@ export default function App() {
                 error={error}
                 onPickOrigin={pickOrigin}
                 onPickDest={pickDest}
-                onClearOrigin={() => {
-                    setOrigin(null);
-                    setOriginLabel("");
-                }}
-                onClearDest={() => {
-                    setDest(null);
-                    setDestLabel("");
-                }}
+                onClearOrigin={clearOrigin}
+                onClearDest={clearDest}
                 onUseGps={useGps}
                 onSwap={swapEndpoints}
                 onReset={resetTrip}

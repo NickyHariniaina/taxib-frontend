@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   CircleMarker,
   MapContainer,
@@ -30,6 +30,7 @@ const originIcon = L.icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   shadowSize: [41, 41],
+  className: 'cursor-pointer',
 });
 
 // Reuse one instance for both markers (same artwork, cheaper DOM).
@@ -48,6 +49,10 @@ export type MapProps = {
   selectedNeighborhood: Neighborhood | null;
   /** Removes the selected quartier mark. */
   onClearNeighborhood: () => void;
+  /** Removes the start (origin) pin. */
+  onClearOrigin: () => void;
+  /** Removes the end (destination) pin. */
+  onClearDest: () => void;
   onChange: (origin: LatLon | null, dest: LatLon | null) => void;
   /** Tap on empty map: sets origin if unset, else destination. */
   onMapClick: (point: LatLon) => void;
@@ -89,12 +94,29 @@ export default function Map({
   path,
   selectedNeighborhood,
   onClearNeighborhood,
+  onClearOrigin,
+  onClearDest,
   onChange,
   onMapClick,
 }: MapProps) {
   const { accentColor } = useAppearance();
   const t = useTranslations('Stops');
+  const tApp = useTranslations('App');
   const format = useFormatter();
+  // Leaflet can fire a click right after a drag: swallow it so nudging a pin
+  // repositions it instead of deleting it.
+  const dragged = useRef(false);
+  const markDragged = () => {
+    dragged.current = true;
+    setTimeout(() => {
+      dragged.current = false;
+    }, 250);
+  };
+  const consumeDrag = () => {
+    if (!dragged.current) return false;
+    dragged.current = false;
+    return true;
+  };
   const center = useMemo<LatLngExpression>(() => [TANA.lat, TANA.lon], []);
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -153,10 +175,16 @@ export default function Map({
           draggable
           icon={originIcon}
           position={[origin.lat, origin.lon]}
+          title={tApp('removeOrigin')}
           eventHandlers={{
             dragend: (e) => {
+              markDragged();
               const m = e.target.getLatLng();
               onChange({ lat: m.lat, lon: m.lng }, dest);
+            },
+            click: () => {
+              if (consumeDrag()) return;
+              onClearOrigin();
             },
           }}
         />
@@ -166,10 +194,16 @@ export default function Map({
           draggable
           icon={destIcon}
           position={[dest.lat, dest.lon]}
+          title={tApp('removeDest')}
           eventHandlers={{
             dragend: (e) => {
+              markDragged();
               const m = e.target.getLatLng();
               onChange(origin, { lat: m.lat, lon: m.lng });
+            },
+            click: () => {
+              if (consumeDrag()) return;
+              onClearDest();
             },
           }}
         />

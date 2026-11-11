@@ -13,6 +13,8 @@ const fr = {
     useGps: 'Utiliser le GPS',
     currentLocation: 'Position actuelle',
     searchQuartier: 'Chercher un quartier',
+    removeOrigin: 'Touchez pour retirer le départ',
+    removeDest: 'Touchez pour retirer l’arrivée',
   },
   Drawer: {
     menu: 'Menu',

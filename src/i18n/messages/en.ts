@@ -14,6 +14,8 @@ const en = {
     useGps: 'Use GPS',
     currentLocation: 'Current location',
     searchQuartier: 'Search a neighborhood',
+    removeOrigin: 'Tap to remove the departure',
+    removeDest: 'Tap to remove the destination',
   },
   Drawer: {
     menu: 'Menu',
