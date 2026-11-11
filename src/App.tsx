@@ -460,10 +460,11 @@ export default function App() {
                     setDrawerOpen(false);
                     setQuartierOpen(true);
                 }}
+                aria-label="Chercher un quartier"
                 aria-haspopup="dialog"
                 aria-controls="quartier-dialog"
                 title="Chercher un quartier"
-                className="absolute right-3 bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] z-[1050] flex h-11 items-center gap-2 rounded-2xl border border-white/10 bg-stone-900/90 text-stone-200 shadow-2xl backdrop-blur transition hover:bg-white/5 active:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#FC3D32] focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950 hover:text-white"
+                className="absolute right-3 bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] z-[1050] grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-stone-900/90 text-stone-200 shadow-2xl backdrop-blur transition hover:bg-white/5 active:bg-white/10 focus-visible:ring-2 focus-visible:ring-[#FC3D32] focus-visible:ring-offset-2 focus-visible:ring-offset-stone-950"
             >
                 <svg
                     viewBox="0 0 24 24"
@@ -471,15 +472,13 @@ export default function App() {
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
+                    strokeLinejoin="round"
                     aria-hidden="true"
-                    className="h-4 w-4"
+                    className="h-5 w-5"
                 >
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="m20 20-3.6-3.6" />
+                    <path d="M12 22c-4 0-8-4-8-8V6a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v8c0 4-4 8-8 8Z" />
+                    <circle cx="12" cy="10" r="2" fill="currentColor" />
                 </svg>
-                <span className="text-sm font-semibold tracking-tight">
-                    Chercher un quartier
-                </span>
             </button>
 
             <QuartierSearch
