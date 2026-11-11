@@ -9,12 +9,21 @@ type Props = {
   value: string;
   onPick: (place: Place) => void;
   onClear: () => void;
+  /** Transparent field for embedding inside a card; the label becomes sr-only. */
+  bare?: boolean;
 };
 
 const DEBOUNCE_MS = 500;
 
 /** Google-like autocomplete field: debounced search, dropdown, keyboard nav. */
-export default function SearchField({ label, placeholder, value, onPick, onClear }: Props) {
+export default function SearchField({
+  label,
+  placeholder,
+  value,
+  onPick,
+  onClear,
+  bare = false,
+}: Props) {
   const [text, setText] = useState(value);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,11 +85,15 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
     <div ref={boxRef} className="relative">
       <label
         htmlFor={listId}
-        className="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-stone-400"
+        className={
+          bare
+            ? 'sr-only'
+            : 'mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-stone-400'
+        }
       >
         {label}
       </label>
-      <div className="flex gap-2">
+      <div className={bare ? 'flex items-center gap-1' : 'flex gap-2'}>
         <input
           id={listId}
           role="combobox"
@@ -106,7 +119,11 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
               setOpen(false);
             }
           }}
-          className="min-w-0 flex-1 rounded-xl bg-white/5 px-3 py-2.5 text-sm text-stone-100 ring-1 ring-white/10 outline-none placeholder:text-stone-500 focus:ring-[#FC3D32]"
+          className={
+            bare
+              ? 'min-w-0 flex-1 rounded-lg bg-transparent px-1 py-3 text-sm text-stone-100 outline-none placeholder:text-stone-500 focus-visible:outline-none'
+              : 'min-w-0 flex-1 rounded-xl bg-white/5 px-3 py-2.5 text-sm text-stone-100 ring-1 ring-white/10 outline-none placeholder:text-stone-500 focus:ring-[#FC3D32]'
+          }
         />
         {text && (
           <button
@@ -119,7 +136,11 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
             }}
             title="Effacer"
             aria-label={`Effacer ${label}`}
-            className="rounded-xl bg-white/5 px-3 ring-1 ring-white/10 hover:ring-[#FC3D32]"
+            className={
+              bare
+                ? 'grid h-6 w-6 shrink-0 place-items-center rounded-full text-stone-500 transition hover:bg-white/10 hover:text-white active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC3D32]'
+                : 'rounded-xl bg-white/5 px-3 text-stone-300 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white hover:ring-[#FC3D32] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FC3D32]'
+            }
           >
             ✕
           </button>
@@ -130,7 +151,7 @@ export default function SearchField({ label, placeholder, value, onPick, onClear
         <ul
           id={`${listId}-list`}
           role="listbox"
-          className="absolute inset-x-0 top-full z-[1100] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-stone-900 p-1 shadow-2xl"
+          className="absolute inset-x-0 top-full z-[1350] mt-1.5 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-stone-900 p-1 shadow-2xl"
         >
           {loading && <li className="px-3 py-2.5 text-[13px] text-stone-400">Recherche…</li>}
           {!loading && failed && (

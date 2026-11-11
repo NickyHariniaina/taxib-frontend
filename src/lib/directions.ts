@@ -32,6 +32,6 @@ export async function getRoadPath(
 }
 
 export function formatTrip(distanceM: number): string {
-  const km = (distanceM / 1000).toFixed(1);
+  const km = (distanceM / 1000).toFixed(1).replace('.', ',');
   return `${km} km`;
 }

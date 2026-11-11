@@ -61,7 +61,7 @@ export async function findNearbyStops(
     const p = { lat: el.lat, lon: el.lon };
     stops.push({
       id: key,
-      name: el.tags?.name ?? el.tags?.ref ?? 'Unnamed stop',
+      name: el.tags?.name ?? el.tags?.ref ?? 'Arrêt sans nom',
       distanceM: Math.round(haversineM(center, p)),
       ...p,
     });
