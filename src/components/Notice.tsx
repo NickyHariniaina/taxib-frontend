@@ -5,7 +5,7 @@ export default function Notice({ children }: { children: ReactNode }) {
   return (
     <div
       role="alert"
-      className="flex items-start gap-2 rounded-xl bg-red-500/10 px-3 py-2.5 text-[12.5px] leading-relaxed text-red-200 ring-1 ring-red-500/20"
+      className="flex items-start gap-2 rounded-xl bg-red-500/10 px-3 py-2.5 text-[12.5px] leading-relaxed text-danger-ink ring-1 ring-red-500/20"
     >
       <span
         aria-hidden="true"

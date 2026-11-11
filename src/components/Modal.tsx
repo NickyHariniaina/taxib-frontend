@@ -87,7 +87,7 @@ export default function Modal({
       <div
         onClick={onClose}
         aria-hidden="true"
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-[fadeIn_250ms_ease-out]"
+        className="absolute inset-0 bg-scrim backdrop-blur-sm animate-[fadeIn_250ms_ease-out]"
       />
 
       <div
@@ -99,7 +99,7 @@ export default function Modal({
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         onKeyDown={trapFocus}
-        className="relative flex max-h-[88svh] w-full flex-col overflow-hidden border border-white/10 bg-stone-900/95 shadow-2xl backdrop-blur-xl outline-none sm:max-w-lg sm:rounded-3xl rounded-t-3xl animate-[sheetIn_300ms_ease-out]"
+        className="relative flex max-h-[88svh] w-full flex-col overflow-hidden border border-line bg-panel/95 shadow-2xl backdrop-blur-xl outline-none sm:max-w-lg sm:rounded-3xl rounded-t-3xl animate-[sheetIn_300ms_ease-out]"
       >
         {children}
       </div>

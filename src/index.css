@@ -1,19 +1,83 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Madagascar flag: red #FC3D32, green #007E3A, white */
+  /* Accent — overridden per data-accent below. */
   --color-brand: #fc3d32;
   --color-brand-deep: #c22a22;
-  --color-leaf: #007e3a;
-  --color-leaf-bright: #22c55e;
+  --color-brand-ink: #ffffff;
+
+  /* Surfaces, text and lines — dark is the default. */
+  --color-canvas: #0c0a09;
+  --color-panel: #1c1917;
+  --color-raised: rgb(255 255 255 / 0.05);
+  --color-raised-strong: rgb(255 255 255 / 0.1);
+  --color-line: rgb(255 255 255 / 0.1);
+  --color-line-strong: rgb(255 255 255 / 0.2);
+  --color-ink: #f5f5f4;
+  --color-ink-strong: #ffffff;
+  --color-muted: #a8a29e;
+  --color-faint: #78716c;
+  --color-ghost: #57534e;
+  --color-scrim: rgb(0 0 0 / 0.55);
+  --color-danger-ink: #fca5a5;
+
   --font-sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Leaflet needs an explicit size + dark backdrop while tiles load */
+:root {
+  color-scheme: dark;
+}
+
+/* Light mode: same tokens with inverted surfaces. */
+html[data-mode='light'] {
+  color-scheme: light;
+  --color-canvas: #f5f5f4;
+  --color-panel: #ffffff;
+  --color-raised: rgb(12 10 9 / 0.04);
+  --color-raised-strong: rgb(12 10 9 / 0.08);
+  --color-line: rgb(12 10 9 / 0.1);
+  --color-line-strong: rgb(12 10 9 / 0.16);
+  --color-ink: #1c1917;
+  --color-ink-strong: #0c0a09;
+  --color-muted: #57534e;
+  --color-faint: #78716c;
+  --color-ghost: #a8a29e;
+  --color-scrim: rgb(0 0 0 / 0.4);
+  --color-danger-ink: #991b1b;
+}
+
+/* Accent presets. Each also declares the ink colour for text on the accent. */
+html[data-accent='bleu'] {
+  --color-brand: #3b82f6;
+  --color-brand-deep: #1d4ed8;
+}
+
+html[data-accent='emeraude'] {
+  --color-brand: #10b981;
+  --color-brand-deep: #047857;
+}
+
+html[data-accent='violet'] {
+  --color-brand: #8b5cf6;
+  --color-brand-deep: #6d28d9;
+}
+
+html[data-accent='ambre'] {
+  --color-brand: #f59e0b;
+  --color-brand-deep: #b45309;
+  --color-brand-ink: #1c1917;
+}
+
+html[data-accent='rose'] {
+  --color-brand: #ec4899;
+  --color-brand-deep: #be185d;
+}
+
+/* Leaflet needs an explicit size + backdrop while tiles load */
 .leaflet-container {
   height: 100%;
   width: 100%;
-  background: #0b0f14;
+  background: var(--color-canvas);
 }
 
 /* Tailwind preflight forces img { max-width: 100%; height: auto }, which
