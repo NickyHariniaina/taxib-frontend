@@ -109,7 +109,12 @@ export default function QuartierSearch({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Chercher un quartier">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Chercher un quartier"
+      dialogId="quartier-dialog"
+    >
       <div className="flex items-start justify-between gap-3 border-b border-white/10 px-5 pt-4 pb-3">
         <div className="min-w-0">
           <h2 className="text-base font-bold tracking-tight text-white">

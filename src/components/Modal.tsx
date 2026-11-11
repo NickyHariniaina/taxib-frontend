@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useId,
   useRef,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
@@ -10,14 +11,24 @@ type Props = {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  /** Stable DOM id, needed when another element points at the dialog. */
+  dialogId?: string;
 };
 
 /**
  * Dialog shell: scrim + centered card on desktop, bottom sheet on phones.
  * Handles Escape, focus entry, focus restore and a simple focus trap.
  */
-export default function Modal({ open, onClose, title, children }: Props) {
+export default function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  dialogId,
+}: Props) {
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const generatedId = useId();
+  const panelId = dialogId ?? generatedId;
 
   // Escape closes, and focus returns to whatever opened the dialog.
   useEffect(() => {
@@ -81,7 +92,7 @@ export default function Modal({ open, onClose, title, children }: Props) {
 
       <div
         ref={panelRef}
-        id="quartier-dialog"
+        id={panelId}
         role="dialog"
         aria-modal="true"
         aria-label={title}

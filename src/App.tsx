@@ -5,12 +5,15 @@ import SearchField from "./components/SearchField";
 import QuartierSearch from "./components/QuartierSearch";
 import StopList from "./components/StopList";
 import JourneyOptions from "./components/JourneyOptions";
+import Tour from "./components/Tour";
+import TourPrompt from "./components/TourPrompt";
 import { getCurrentPosition, type LatLon } from "./lib/location";
 import type { Place } from "./lib/geocode";
 import type { Neighborhood } from "./lib/neighborhoods";
 import { findNearbyStops, type Stop } from "./lib/stops";
 import { findLinesNear, type BusLine } from "./lib/lines";
 import { formatTrip, getRoadPath, type RoadPath } from "./lib/directions";
+import { hasSeenTour, markTourSeen } from "./lib/tour";
 
 const coordsLabel = (p: LatLon) => `${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}`;
 const keyOf = (p: LatLon | null) => (p ? `${p.lat},${p.lon}` : "unset");
@@ -40,15 +43,20 @@ export default function App() {
     const [roadError, setRoadError] = useState<string | null>(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [quartierOpen, setQuartierOpen] = useState(false);
+    // First visit opens on the welcome prompt; a finished tour is remembered.
+    const [tour, setTour] = useState<"idle" | "prompt" | "running">(() =>
+        hasSeenTour() ? "idle" : "prompt",
+    );
 
-    // Escape closes the drawer, unless the quartier dialog is on top.
+    // Escape closes the drawer, unless a dialog or the tour is on top.
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && !quartierOpen) setDrawerOpen(false);
+            if (e.key === "Escape" && !quartierOpen && tour === "idle")
+                setDrawerOpen(false);
         };
         document.addEventListener("keydown", onKey);
         return () => document.removeEventListener("keydown", onKey);
-    }, [quartierOpen]);
+    }, [quartierOpen, tour]);
 
     // Spike: live OSM stops + lines around each set endpoint. Debounced + aborted;
     // the future backend endpoints keep this exact UI.
@@ -212,6 +220,7 @@ export default function App() {
             <header className="absolute inset-x-3 top-3 z-[1100] flex items-center gap-2 pt-[env(safe-area-inset-top)]">
                 <button
                     type="button"
+                    data-tour="menu"
                     onClick={() => setDrawerOpen((v) => !v)}
                     aria-expanded={drawerOpen}
                     aria-label={drawerOpen ? "Fermer le menu" : "Ouvrir le menu"}
@@ -241,6 +250,7 @@ export default function App() {
                 </button>
                 <button
                     type="button"
+                    data-tour="trip"
                     onClick={() => setDrawerOpen(true)}
                     className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl border border-white/10 bg-stone-900/90 px-3 py-2 text-left shadow-2xl backdrop-blur active:scale-[0.99]"
                 >
@@ -271,6 +281,7 @@ export default function App() {
                 </button>
                 <button
                     type="button"
+                    data-tour="gps"
                     onClick={useGps}
                     disabled={locating}
                     title="Utiliser le GPS"
@@ -441,21 +452,29 @@ export default function App() {
                     définit le départ, le suivant l'arrivée. Faites glisser les
                     marqueurs pour ajuster.
                 </div>
-            </aside>
 
-            {/* map hint */}
-            <div className="pointer-events-none absolute bottom-24 left-1/2 z-[1000] max-w-[92vw] -translate-x-1/2 truncate rounded-full border border-white/10 bg-stone-900/90 px-4 py-1.5 text-xs whitespace-nowrap text-stone-400 backdrop-blur sm:bottom-24">
-                <span className="hidden sm:inline">
-                    Tapez la carte pour poser les points · faites glisser les marqueurs · défilez pour zoomer
-                </span>
-                <span className="sm:hidden">
-                    Tapez pour poser les points · faites glisser pour déplacer
-                </span>
-            </div>
+                <button
+                    type="button"
+                    onClick={() => {
+                        setDrawerOpen(false);
+                        setTour("running");
+                    }}
+                    className="flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-stone-400 transition hover:bg-white/5 hover:text-white active:scale-[0.99]"
+                >
+                    <span
+                        aria-hidden="true"
+                        className="grid h-5 w-5 place-items-center rounded-full text-[11px] font-bold text-stone-300 ring-1 ring-white/20"
+                    >
+                        ?
+                    </span>
+                    Revoir le tutoriel
+                </button>
+            </aside>
 
             {/* map action: search a quartier */}
             <button
                 type="button"
+                data-tour="quartier"
                 onClick={() => {
                     setDrawerOpen(false);
                     setQuartierOpen(true);
@@ -493,6 +512,22 @@ export default function App() {
                     });
                 }}
             />
+
+            <TourPrompt
+                open={tour === "prompt"}
+                onStart={() => setTour("running")}
+                onSkip={() => setTour("idle")}
+            />
+
+            {tour === "running" && (
+                <Tour
+                    onClose={() => setTour("idle")}
+                    onFinish={() => {
+                        markTourSeen();
+                        setTour("idle");
+                    }}
+                />
+            )}
         </div>
     );
 }
