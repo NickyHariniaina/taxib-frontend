@@ -1,8 +1,9 @@
 import en from './messages/en';
 import fr from './messages/fr';
+import mg from './messages/mg';
 
 export const LOCALE_KEY = 'taxib:lang';
-export const locales = ['fr', 'en'] as const;
+export const locales = ['mg', 'fr', 'en'] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'fr';
 
@@ -12,6 +13,7 @@ export const defaultLocale: Locale = 'fr';
 export const messages: Record<Locale, typeof fr> = {
   fr,
   en: en as unknown as typeof fr,
+  mg: mg as unknown as typeof fr,
 };
 
 function isLocale(value: unknown): value is Locale {

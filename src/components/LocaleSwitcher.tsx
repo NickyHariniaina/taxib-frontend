@@ -1,12 +1,19 @@
-import { locales, useLocale, useLocaleControl, useTranslations } from '../i18n';
+import {
+  locales,
+  useLocale,
+  useLocaleControl,
+  useTranslations,
+  type Locale,
+} from '../i18n';
 
-/** Segmented FR / EN control; each option is pronounced in its own language. */
+/** Segmented language control; each option is pronounced in its own language. */
 export default function LocaleSwitcher() {
   const locale = useLocale();
   const { setLocale } = useLocaleControl();
   const t = useTranslations('Locale');
 
-  const names: Record<(typeof locales)[number], string> = {
+  const names: Record<Locale, string> = {
+    mg: t('names.mg'),
     fr: t('names.fr'),
     en: t('names.en'),
   };

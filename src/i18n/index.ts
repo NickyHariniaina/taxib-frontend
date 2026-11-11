@@ -1,5 +1,4 @@
 export { useFormatter, useLocale, useTranslations } from 'use-intl';
 export { default as LocaleProvider } from './LocaleProvider';
 export { useLocaleControl } from './context';
-export { defaultLocale, locales, type Locale } from './config';
-export type { ErrorKey } from './types';
+export { defaultLocale, locales, type Locale } from './config';export type { ErrorKey } from './types';

@@ -127,6 +127,7 @@ const fr = {
   Locale: {
     label: 'Langue',
     names: {
+      mg: 'Malagasy',
       fr: 'Français',
       en: 'English',
     },
