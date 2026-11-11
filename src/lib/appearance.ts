@@ -9,6 +9,12 @@ export type Accent = (typeof accents)[number];
 export const modes = ['clair', 'sombre'] as const;
 export type Mode = (typeof modes)[number];
 
+/** Internal ids are French; the `data-mode` values the CSS matches on are English. */
+const MODE_CSS: Record<Mode, 'light' | 'dark'> = {
+  clair: 'light',
+  sombre: 'dark',
+};
+
 type AccentLabelKey =
   | 'themes.rouge'
   | 'themes.bleu'
@@ -73,7 +79,7 @@ export function detectAppearance(): { accent: Accent; mode: Mode } {
 export function applyAppearance(accent: Accent, mode: Mode): void {
   const root = document.documentElement;
   root.dataset.accent = accent;
-  root.dataset.mode = mode;
+  root.dataset.mode = MODE_CSS[mode];
 }
 
 export function persistAccent(accent: Accent): void {

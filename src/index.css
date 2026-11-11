@@ -28,6 +28,11 @@
   color-scheme: dark;
 }
 
+/* Dark mode: the base tokens already are dark, so only the scheme is set. */
+html[data-mode='dark'] {
+  color-scheme: dark;
+}
+
 /* Light mode: same tokens with inverted surfaces. */
 html[data-mode='light'] {
   color-scheme: light;
