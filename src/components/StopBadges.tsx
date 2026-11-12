@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import { useAppearance } from '../lib/useAppearance';
@@ -53,17 +54,27 @@ export default function StopBadges({
 }) {
   const { accentColor } = useAppearance();
   const t = useTranslations('Stops');
+  const clickable = onSelect !== undefined;
+
+  // Icons are built once per set of stops: a fresh icon object makes
+  // react-leaflet replace the marker's DOM element on every render.
+  const icons = useMemo(() => {
+    const built = new Map<number, L.DivIcon>();
+    for (const stop of stops) {
+      built.set(
+        stop.id,
+        makeStopIcon(accentColor, stop.name || t('unnamed'), clickable),
+      );
+    }
+    return built;
+  }, [stops, accentColor, clickable, t]);
 
   return (
     <>
       {stops.map((stop) => (
         <Marker
           key={stop.id}
-          icon={makeStopIcon(
-            accentColor,
-            stop.name || t('unnamed'),
-            onSelect !== undefined,
-          )}
+          icon={icons.get(stop.id)}
           position={[stop.lat, stop.lon]}
           eventHandlers={
             onSelect ? { click: () => onSelect(stop) } : undefined

@@ -1,41 +1,33 @@
-/* eslint-disable react/set-state-in-effect -- fetching the catalog when the dialog opens */
+/* eslint-disable react/set-state-in-effect -- clearing the search when the dialog opens */
 import { useEffect, useMemo, useState } from 'react';
 import Modal from './Modal';
 import LineList from './LineList';
-import {
-  fetchLines,
-  filterGroups,
-  groupByNumber,
-  type BusLineVariant,
-} from '../lib/lines';
+import { filterGroups, groupByNumber, type BusLineVariant } from '../lib/lines';
 import { useTranslations } from '../i18n';
 
 type Props = {
   open: boolean;
+  /** The catalogue, fetched once by the app. Null while it loads. */
+  variants: BusLineVariant[] | null;
+  failed: boolean;
   onClose: () => void;
   /** Called with the variant the user picked. */
   onSelect: (variant: BusLineVariant) => void;
 };
 
 /** Catalogue of every bus line, searchable by number or name. */
-export default function LineDialog({ open, onClose, onSelect }: Props) {
+export default function LineDialog({
+  open,
+  variants,
+  failed,
+  onClose,
+  onSelect,
+}: Props) {
   const t = useTranslations('Lines');
-  const [variants, setVariants] = useState<BusLineVariant[] | null>(null);
-  const [failed, setFailed] = useState(false);
   const [query, setQuery] = useState('');
 
   useEffect(() => {
-    if (!open) return;
-    const ctrl = new AbortController();
-    setVariants(null);
-    setFailed(false);
-    setQuery('');
-    fetchLines(ctrl.signal)
-      .then(setVariants)
-      .catch(() => {
-        if (!ctrl.signal.aborted) setFailed(true);
-      });
-    return () => ctrl.abort();
+    if (open) setQuery('');
   }, [open]);
 
   const groups = useMemo(
