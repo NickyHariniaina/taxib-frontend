@@ -18,6 +18,8 @@ const fr = {
     zoneCancel: 'Annuler',
     removeOrigin: 'Touchez pour retirer le départ',
     removeDest: 'Touchez pour retirer l’arrivée',
+    pinOrigin: 'Départ',
+    pinDest: 'Arrivée',
   },
   Drawer: {
     menu: 'Menu',
@@ -70,6 +72,15 @@ const fr = {
     more: '{count, plural, one {# résultat supplémentaire} other {# résultats supplémentaires}} — tapez plus pour affiner.',
     empty: 'Aucun quartier trouvé. Essayez un nom plus court.',
     error: 'Impossible de charger les quartiers. Vérifiez la connexion.',
+  },
+  Legend: {
+    departure: 'Départ',
+    arrival: 'Arrivée',
+    stopsNearStart: 'Arrêts près du départ',
+    stopsNearEnd: 'Arrêts près de l’arrivée',
+    busStops: 'Arrêts de bus',
+    quartier: 'Quartier sélectionné',
+    zone: 'Zone de recherche',
   },
   Tour: {
     prev: 'Étape précédente',

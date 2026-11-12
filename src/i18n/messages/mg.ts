@@ -27,6 +27,8 @@ const mg = {
     zoneCancel: 'Hanafoana',
     removeOrigin: 'Kitiho ny toerana mpandehana',
     removeDest: 'Kitiho ny toerana tratra',
+    pinOrigin: 'Toerana mpandehana',
+    pinDest: 'Toerana tratra',
   },
   Drawer: {
     menu: 'Meny',
@@ -84,6 +86,15 @@ const mg = {
     empty: 'Tsy hita ny kafo. Andramo ny anarana fohy.',
     error:
       'Tsy azo ampitahana ny kafo. Hamarino ny fifandraisanao.',
+  },
+  Legend: {
+    departure: 'Toerana mpandehana',
+    arrival: 'Toerana tratra',
+    stopsNearStart: 'Fijanonana akaiky ny toerana mpandehana',
+    stopsNearEnd: 'Fijanonana akaiky ny toerana tratra',
+    busStops: 'Fijanonana boriby',
+    quartier: 'Ny kafo voafidy',
+    zone: 'Faritra fikarohana',
   },
   Tour: {
     prev: 'Dingana teo aloha',

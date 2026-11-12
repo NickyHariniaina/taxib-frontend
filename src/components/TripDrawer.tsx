@@ -167,7 +167,7 @@ export default function TripDrawer({
               <div className="relative flex items-center gap-3 rounded-xl focus-within:bg-raised">
                 <span
                   aria-hidden="true"
-                  className="ml-2 h-3 w-3 shrink-0 rounded-full border-2 border-brand bg-panel"
+                  className="ml-2 h-4 w-4 shrink-0 rounded-full border-2 border-brand bg-panel"
                 />
                 <div className="min-w-0 flex-1">
                   <SearchField
@@ -183,7 +183,7 @@ export default function TripDrawer({
               <div className="relative flex items-center gap-3 rounded-xl focus-within:bg-raised">
                 <span
                   aria-hidden="true"
-                  className="ml-2 h-3 w-3 shrink-0 rounded-full border-2 border-muted bg-panel"
+                  className="ml-2 h-4 w-4 shrink-0 rounded-full border-2 border-muted bg-panel"
                 />
                 <div className="min-w-0 flex-1">
                   <SearchField

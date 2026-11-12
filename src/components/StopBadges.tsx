@@ -30,9 +30,9 @@ const BUS_GLYPH =
 function makeStopIcon(color: string, name: string, clickable: boolean): L.DivIcon {
   return L.divIcon({
     className: `quartier-stop-icon${clickable ? ' cursor-pointer' : ''}`,
-    html: `<svg viewBox="0 0 30 30" width="30" height="30" role="img" aria-label="${escapeHtml(name)}"><rect x="1" y="1" width="28" height="28" rx="8" fill="${color}" stroke="white" stroke-width="2"/><path fill="white" d="${BUS_GLYPH}" transform="translate(4 4) scale(0.9)"/></svg>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
+    html: `<svg viewBox="0 0 30 30" width="34" height="34" role="img" aria-label="${escapeHtml(name)}"><rect x="1" y="1" width="28" height="28" rx="8" fill="${color}" stroke="white" stroke-width="2"/><path fill="white" d="${BUS_GLYPH}" transform="translate(4 4) scale(0.9)"/></svg>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
   });
 }
 

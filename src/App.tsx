@@ -1,6 +1,7 @@
 /* eslint-disable react/set-state-in-effect -- endpoint-driven async fetching syncs external data */
 import { useEffect, useState } from "react";
 import Map from "./components/Map";
+import MapLegend, { type LegendEntry } from "./components/MapLegend";
 import QuartierSearch from "./components/QuartierSearch";
 import SelectionBar from "./components/SelectionBar";
 import Tour from "./components/Tour";
@@ -452,6 +453,17 @@ export default function App() {
             ? quartierStops
             : null;
 
+    // What the legend lists: only the markers actually on the map.
+    const legendEntries: LegendEntry[] = [];
+    if (origin) legendEntries.push('departure');
+    if (dest) legendEntries.push('arrival');
+    if (originStops.length > 0) legendEntries.push('stopsNearStart');
+    if (destStops.length > 0) legendEntries.push('stopsNearEnd');
+    if ((stopList?.stops.length ?? 0) > 0 || zone?.stops.length || lineStops.length > 0)
+        legendEntries.push('busStops');
+    if (selectedQuartier) legendEntries.push('quartier');
+    if (zone) legendEntries.push('zone');
+
     const radiusLabel = format.number(ZONE_RADIUS_M, {
         style: "unit",
         unit: "meter",
@@ -495,6 +507,8 @@ export default function App() {
                     onMapClick={mapTap}
                 />
             </div>
+
+            <MapLegend entries={legendEntries} />
 
             {/* floating top bar: hamburger + trip at a glance + locate */}
             <header className="absolute inset-x-3 top-3 z-[1100] flex items-center gap-2 pt-[env(safe-area-inset-top)]">
