@@ -93,9 +93,13 @@ const fr = {
         title: 'Les quartiers',
         body: 'Cherchez un quartier par son nom, même mal orthographié. Sur la carte, le premier tap pose le départ, le suivant l’arrivée.',
       },
+      lines: {
+        title: 'Les lignes de bus',
+        body: 'Le menu liste les lignes : numéro, sens et arrêts. Choisissez-en une pour la tracer sur la carte, et touchez un arrêt pour voir les bus qui y passent.',
+      },
       stops: {
         title: 'Les arrêts de bus',
-        body: 'Touchez le bouton bus, puis la carte : tous les arrêts autour de ce point apparaissent dans une zone de 500 m.',
+        body: 'Touchez le bouton bus, puis la carte : tous les arrêts autour de ce point apparaissent dans une zone de 500 m. Touchez un arrêt pour voir les bus qui y passent.',
       },
     },
   },

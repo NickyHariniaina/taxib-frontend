@@ -12,9 +12,11 @@ type Step = {
   /** Value of the `data-tour` attribute of the element to highlight. */
   target: string;
   /** Message key under `Tour.steps`. */
-  key: 'menu' | 'trip' | 'gps' | 'quartier' | 'stops';
+  key: 'menu' | 'trip' | 'gps' | 'quartier' | 'stops' | 'lines';
   /** Force the card to one side; otherwise it picks the roomier side. */
   placement?: 'above' | 'below';
+  /** Opens the drawer while this step is showing. */
+  drawer?: boolean;
 };
 
 const STEPS: Step[] = [
@@ -23,6 +25,7 @@ const STEPS: Step[] = [
   { target: 'gps', key: 'gps' },
   { target: 'quartier', key: 'quartier', placement: 'above' },
   { target: 'stops', key: 'stops', placement: 'above' },
+  { target: 'lines', key: 'lines', drawer: true },
 ];
 
 /** How many steps the tour has; the welcome prompt counts them. */
@@ -38,6 +41,8 @@ type Props = {
   onClose: () => void;
   /** Last step reached: the caller remembers it. */
   onFinish: () => void;
+  /** Opens or closes the drawer, for the steps that live inside it. */
+  onToggleDrawer?: (open: boolean) => void;
 };
 
 function tooltipStyle(rect: DOMRect | null, step: Step): CSSProperties {
@@ -82,22 +87,39 @@ function tooltipStyle(rect: DOMRect | null, step: Step): CSSProperties {
  * Guided spotlight tour over the map screen. The overlay blocks the UI, so the
  * only ways forward are the card controls (mouse, keyboard or screen reader).
  */
-export default function Tour({ onClose, onFinish }: Props) {
+export default function Tour({ onClose, onFinish, onToggleDrawer }: Props) {
   const t = useTranslations('Tour');
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
   const step = STEPS[index];
   const last = index === STEPS.length - 1;
 
   // Keep the latest callbacks without re-binding the keyboard listener.
-  const latest = useRef({ onClose, onFinish });
+  const latest = useRef({ onClose, onFinish, onToggleDrawer });
   useEffect(() => {
-    latest.current = { onClose, onFinish };
+    latest.current = { onClose, onFinish, onToggleDrawer };
   });
 
-  // Track the highlighted element: initial measure, then resize/scroll.
+  // Ask for the drawer the step needs; it closes again with the tour.
+  useEffect(() => {
+    const want = step.drawer ?? false;
+    setDrawerOpen(want);
+    latest.current.onToggleDrawer?.(want);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  useEffect(
+    () => () => {
+      latest.current.onToggleDrawer?.(false);
+    },
+    [],
+  );
+
+  // Track the highlighted element: initial measure, then resize/scroll. The
+  // drawer opening counts, so a step inside it is measured once it is visible.
   useLayoutEffect(() => {
     const measure = () => {
       const el = document.querySelector(`[data-tour="${step.target}"]`);
@@ -110,7 +132,8 @@ export default function Tour({ onClose, onFinish }: Props) {
       window.removeEventListener('resize', measure);
       window.removeEventListener('scroll', measure, true);
     };
-  }, [step.target]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step.target, drawerOpen]);
 
   // Move focus to the card so the step is announced.
   useEffect(() => {
@@ -139,11 +162,10 @@ export default function Tour({ onClose, onFinish }: Props) {
   const back = () => setIndex(Math.max(0, index - 1));
 
   const trapTab = (e: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== 'Tab') return;
     const card = cardRef.current;
     if (!card) return;
     const focusables = Array.from(
-      card.querySelectorAll<HTMLElement>('button:not([disabled])'),
+      card.querySelectorAll<HTMLButtonElement>('button:not([disabled])'),
     );
     if (focusables.length === 0) return;
     const first = focusables[0];

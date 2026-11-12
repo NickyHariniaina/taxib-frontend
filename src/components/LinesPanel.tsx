@@ -29,6 +29,7 @@ export default function LinesPanel({ selected, onBrowse }: Props) {
 
       <button
         type="button"
+        data-tour="lines"
         onClick={onBrowse}
         className="flex w-full items-center gap-2 rounded-xl bg-raised px-3 py-2.5 text-[12px] font-semibold text-ink transition hover:bg-raised-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >

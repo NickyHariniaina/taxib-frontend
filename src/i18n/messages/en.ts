@@ -94,9 +94,13 @@ const en = {
         title: 'Neighborhoods',
         body: 'Search a neighborhood by name, even if it’s misspelled. On the map, the first tap sets the origin, the next one the destination.',
       },
+      lines: {
+        title: 'Bus lines',
+        body: 'The menu lists the lines: number, direction and stops. Pick one to trace it on the map, and tap a stop to see the buses that serve it.',
+      },
       stops: {
         title: 'Bus stops',
-        body: 'Tap the bus button, then the map: every stop around that point shows up in a 500 m zone.',
+        body: 'Tap the bus button, then the map: every stop around that point shows up in a 500 m zone. Tap a stop to see the buses that serve it.',
       },
     },
   },
