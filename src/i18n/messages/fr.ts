@@ -101,11 +101,15 @@ const fr = {
         title: 'Les quartiers',
         body: 'Cherchez un quartier par son nom, même mal orthographié. Sur la carte, le premier tap pose le départ, le suivant l’arrivée.',
       },
+      stops: {
+        title: 'Les arrêts de bus',
+        body: 'Touchez le bouton bus, puis la carte : tous les arrêts autour de ce point apparaissent dans une zone de 500 m.',
+      },
     },
   },
   TourPrompt: {
     title: 'Bienvenue sur taxib',
-    body: 'Trouvez votre bus à Antananarivo en quelques secondes. On vous montre ? Quatre étapes, trente secondes.',
+    body: 'Trouvez votre bus à Antananarivo en quelques secondes. On vous montre ? {count, plural, one {# étape} other {# étapes}}, trente secondes.',
     start: 'Commencer le tutoriel',
     skip: 'Passer, je connais l’app',
   },

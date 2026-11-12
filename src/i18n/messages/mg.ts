@@ -116,11 +116,15 @@ const mg = {
         title: 'Ny kafo',
         body: 'Karohina ny kafo amin’ny anarany, na dia diso aza ny fanamarihana. Ao amin’ny sary, ny kitihonady voalohany no manao ny toerana mpandehana, ary ny manaraka no manao ny toerana tratra.',
       },
+      stops: {
+        title: 'Ny fijanonana boriby',
+        body: 'Kitiho ny bokon’ny bus, dia ny sary : ny fijanonana manodidina ny toerana dia aseho ao anatin’ny zone 500 m.',
+      },
     },
   },
   TourPrompt: {
     title: 'Tongasoa amin’ny taxib',
-    body: 'Mahita ny boribinao any Antananarivo ao anatin’ny segondra vitsy. Haseho anao ve? Dingana efatra, telopolo segondra.',
+    body: 'Mahita ny boribinao any Antananarivo ao anatin’ny segondra vitsy. Haseho anao ve? {count, plural, one {# dingana} other {# dingana}}, telopolo segondra.',
     start: 'Manomboha ny fianarana',
     skip: 'Hetsika, efa mahalatra ny app',
   },
