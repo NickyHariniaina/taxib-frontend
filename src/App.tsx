@@ -14,7 +14,7 @@ import {
     type NeighborhoodStop,
 } from "./lib/neighborhoods";
 import { findNearbyStops, type Stop } from "./lib/stops";
-import { fetchLineStops, type BusLineVariant, type LineStop } from "./lib/lines";
+import { fetchLines, fetchLineStops, type BusLineVariant, type LineStop } from "./lib/lines";
 import LineDialog from "./components/LineDialog";
 import StopLinesDialog from "./components/StopLinesDialog";
 import type { TappableStop } from "./components/StopBadges";
@@ -84,6 +84,8 @@ export default function App() {
     const [stopsLoading, setStopsLoading] = useState(false);
     const [stopsError, setStopsError] = useState<ErrorKey | null>(null);
     const [lineDialogOpen, setLineDialogOpen] = useState(false);
+    const [lineVariants, setLineVariants] = useState<BusLineVariant[] | null>(null);
+    const [lineVariantsFailed, setLineVariantsFailed] = useState(false);
     const [selectedLine, setSelectedLine] = useState<BusLineVariant | null>(null);
     const [lineStops, setLineStops] = useState<LineStop[]>([]);
     const [lineStopsLoading, setLineStopsLoading] = useState(false);
@@ -139,7 +141,7 @@ export default function App() {
             } finally {
                 setStopsLoading(false);
             }
-        }, 600);
+        }, 250);
         return () => {
             clearTimeout(timer);
             ctrl.abort();
@@ -294,6 +296,23 @@ export default function App() {
             return !mode;
         });
     };
+
+    // The catalogue barely changes, so it is fetched once and kept.
+    useEffect(() => {
+        if (!lineDialogOpen || lineVariants !== null) return;
+        const ctrl = new AbortController();
+        setLineVariantsFailed(false);
+        fetchLines(ctrl.signal)
+            .then((variants) => {
+                if (ctrl.signal.aborted) return;
+                setLineVariants(variants);
+            })
+            .catch(() => {
+                if (!ctrl.signal.aborted) setLineVariantsFailed(true);
+            });
+        return () => ctrl.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lineDialogOpen, lineVariants]);
 
     // Stops of the selected line. Re-picking the same line refetches it.
     useEffect(() => {
@@ -741,6 +760,8 @@ export default function App() {
 
             <LineDialog
                 open={lineDialogOpen}
+                variants={lineVariants}
+                failed={lineVariantsFailed}
                 onClose={() => setLineDialogOpen(false)}
                 onSelect={selectLine}
             />
