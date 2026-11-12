@@ -288,7 +288,6 @@ export default function App() {
             loading: true,
             failed: false,
         });
-        setFocus(p);
     };
 
     /** Enters the "pick the centre of the zone" mode. */

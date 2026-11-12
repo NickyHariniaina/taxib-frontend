@@ -103,7 +103,12 @@ function stopMapClick(e: LeafletMouseEvent) {
   L.DomEvent.stopPropagation(e.originalEvent);
 }
 
-/** Frames the selected quartier: fits its stops, or zooms to its centre. */
+/**
+ * Frames the selected quartier: fits its stops, or zooms to its centre.
+ *
+ * The zoom is computed by hand and rounded up: fitBounds rounds down, which
+ * leaves the stops noticeably small on a phone.
+ */
 function FitQuartier({
   center,
   points,
@@ -118,13 +123,40 @@ function FitQuartier({
   useEffect(() => {
     if (!loaded) return;
     if (points.length > 0) {
-      map.flyToBounds(
+      const bounds = L.latLngBounds(
         points.map((p) => [p.lat, p.lon] as [number, number]),
-        { padding: [48, 48], maxZoom: 17, duration: 1.2 },
       );
+      const zoom = Math.min(
+        18,
+        Math.ceil(map.getBoundsZoom(bounds, false, L.point(32, 32))),
+      );
+      map.flyTo(bounds.getCenter(), zoom, { duration: 1.2 });
     } else {
-      map.flyTo([center.lat, center.lon], 15, { duration: 1.2 });
+      map.flyTo([center.lat, center.lon], 16, { duration: 1.2 });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return null;
+}
+
+/**
+ * Frames the search zone: the camera fits the circle, not the point. The zoom
+ * comes from the radius and the viewport, so the zone fills the screen
+ * whatever its size.
+ */
+function FitZone({ center, radiusM }: { center: LatLon; radiusM: number }) {
+  const map = useMap();
+  const key = `${center.lat},${center.lon}|${radiusM}`;
+  useEffect(() => {
+    const size = map.getSize();
+    const span = Math.max(Math.min(size.x, size.y) - 48, 50);
+    // Metres per pixel at zoom 0 for this latitude (Web Mercator).
+    const mpp = (radiusM * 2) / span;
+    const zoom = Math.min(
+      18,
+      Math.log2((156543.03 * Math.cos((center.lat * Math.PI) / 180)) / mpp),
+    );
+    map.flyTo([center.lat, center.lon], zoom, { duration: 1.2 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
   return null;
@@ -185,6 +217,9 @@ export default function Map({
         />
       )}
       <ClickSetter onMapClick={onMapClick} />
+      {zone && (
+        <FitZone center={zone.center} radiusM={zone.radiusM} />
+      )}
       {path && path.length > 1 && (
         <Polyline
           positions={path.map((p) => [p.lat, p.lon] as [number, number])}
