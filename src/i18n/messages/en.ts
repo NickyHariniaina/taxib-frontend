@@ -19,6 +19,8 @@ const en = {
     zoneCancel: 'Cancel',
     removeOrigin: 'Tap to remove the departure',
     removeDest: 'Tap to remove the destination',
+    pinOrigin: 'Departure',
+    pinDest: 'Arrival',
   },
   Drawer: {
     menu: 'Menu',
@@ -71,6 +73,15 @@ const en = {
     more: '{count, plural, one {# more result} other {# more results}} — type more to narrow down.',
     empty: 'No neighborhood found. Try a shorter name.',
     error: 'Couldn’t load neighborhoods. Check your connection.',
+  },
+  Legend: {
+    departure: 'Departure',
+    arrival: 'Arrival',
+    stopsNearStart: 'Stops near the departure',
+    stopsNearEnd: 'Stops near the arrival',
+    busStops: 'Bus stops',
+    quartier: 'Selected neighborhood',
+    zone: 'Search zone',
   },
   Tour: {
     prev: 'Previous step',

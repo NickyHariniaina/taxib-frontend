@@ -29,9 +29,9 @@ const originIcon = L.icon({
   iconUrl: markerIcon,
   iconRetinaUrl: markerIcon2x,
   shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  shadowSize: [41, 41],
+  iconSize: [32, 52],
+  iconAnchor: [16, 52],
+  shadowSize: [52, 52],
   className: 'cursor-pointer',
 });
 
@@ -41,9 +41,9 @@ const destIcon = originIcon;
 /** Crosshair marking the centre of a stop-search zone. */
 const zonePinIcon = L.divIcon({
   className: 'zone-pin-icon',
-  html: '<svg viewBox="0 0 30 30" width="30" height="30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="white" stroke-width="2.5"/><circle cx="15" cy="15" r="4" fill="white"/></svg>',
-  iconSize: [30, 30],
-  iconAnchor: [15, 15],
+  html: '<svg viewBox="0 0 30 30" width="34" height="34" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="white" stroke-width="2.5"/><circle cx="15" cy="15" r="4" fill="white"/></svg>',
+  iconSize: [34, 34],
+  iconAnchor: [17, 17],
 });
 
 export type MapProps = {
@@ -257,8 +257,8 @@ export default function Map({
         <CircleMarker
           key={s.id}
           center={[s.lat, s.lon]}
-          radius={6}
-          pathOptions={{ color: '#22c55e', weight: 2, fillColor: '#22c55e', fillOpacity: 0.7 }}
+          radius={8}
+          pathOptions={{ color: '#FFFFFF', weight: 2, fillColor: '#22c55e', fillOpacity: 0.95 }}
           eventHandlers={{ click: stopMapClick }}
         >
           <Tooltip direction="top" offset={[0, -6]}>
@@ -276,8 +276,8 @@ export default function Map({
         <CircleMarker
           key={s.id}
           center={[s.lat, s.lon]}
-          radius={6}
-          pathOptions={{ color: '#38bdf8', weight: 2, fillColor: '#38bdf8', fillOpacity: 0.7 }}
+          radius={8}
+          pathOptions={{ color: '#FFFFFF', weight: 2, fillColor: '#38bdf8', fillOpacity: 0.95 }}
           eventHandlers={{ click: stopMapClick }}
         >
           <Tooltip direction="top" offset={[0, -6]}>
@@ -308,7 +308,11 @@ export default function Map({
               onClearOrigin();
             },
           }}
-        />
+        >
+          <Tooltip permanent direction="top" offset={[0, -6]}>
+            {tApp('pinOrigin')}
+          </Tooltip>
+        </Marker>
       )}
       {dest && (
         <Marker
@@ -327,7 +331,11 @@ export default function Map({
               onClearDest();
             },
           }}
-        />
+        >
+          <Tooltip permanent direction="top" offset={[0, -6]}>
+            {tApp('pinDest')}
+          </Tooltip>
+        </Marker>
       )}
       <StopBadges stops={quartierStops} onSelect={onStopSelect} />
       <StopBadges stops={zoneStops} onSelect={onStopSelect} />
@@ -339,7 +347,7 @@ export default function Map({
             selectedNeighborhood.latitude,
             selectedNeighborhood.longitude,
           ]}
-          radius={12}
+          radius={14}
           pathOptions={{
             color: '#FFFFFF',
             weight: 3,
