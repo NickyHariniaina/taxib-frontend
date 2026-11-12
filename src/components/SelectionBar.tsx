@@ -13,7 +13,7 @@ type Props = {
  * clears it from the map.
  */
 export default function SelectionBar({ title, subtitle, onClear }: Props) {
-  const t = useTranslations('Quartier');
+  const t = useTranslations('Stops');
 
   return (
     <div className="pointer-events-auto absolute bottom-[max(5rem,calc(env(safe-area-inset-bottom)+4rem))] left-3 right-3 z-[1050] flex items-center gap-2 rounded-2xl border border-line bg-panel/95 py-2 pl-3 pr-2 shadow-2xl backdrop-blur">
@@ -24,11 +24,11 @@ export default function SelectionBar({ title, subtitle, onClear }: Props) {
       <button
         type="button"
         onClick={onClear}
-        aria-label={t('clearStops')}
-        title={t('clearStops')}
+        aria-label={t('clear')}
+        title={t('clear')}
         className="shrink-0 rounded-xl bg-raised px-3 py-2 text-[12px] font-semibold text-ink transition hover:bg-raised-strong active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >
-        {t('clearStops')}
+        {t('clear')}
       </button>
     </div>
   );

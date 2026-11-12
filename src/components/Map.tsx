@@ -14,7 +14,7 @@ import type { MapStop, Stop } from '../lib/stops';
 import type { Neighborhood } from '../lib/neighborhoods';
 import { useAppearance } from '../lib/useAppearance';
 import { useFormatter, useTranslations } from '../i18n';
-import StopBadges from './StopBadges';
+import StopBadges, { type TappableStop } from './StopBadges';
 import L, { type LatLngExpression, type LeafletMouseEvent } from 'leaflet';
 import { TANA, type LatLon } from '../lib/location';
 import 'leaflet/dist/leaflet.css';
@@ -65,6 +65,10 @@ export type MapProps = {
   zone: { center: LatLon; radiusM: number } | null;
   /** Stops inside the zone, drawn as bus-stop icons. */
   zoneStops: MapStop[];
+  /** Stops of the selected line, drawn as bus-stop icons. */
+  lineStops: MapStop[];
+  /** Called when a stop badge is tapped. */
+  onStopSelect?: (stop: TappableStop) => void;
   /** Removes the selected quartier mark. */
   onClearNeighborhood: () => void;
   /** Removes the start (origin) pin. */
@@ -174,6 +178,8 @@ export default function Map({
   quartierStopsLoaded,
   zone,
   zoneStops,
+  lineStops,
+  onStopSelect,
   onClearNeighborhood,
   onClearOrigin,
   onClearDest,
@@ -323,8 +329,9 @@ export default function Map({
           }}
         />
       )}
-      <StopBadges stops={quartierStops} />
-      <StopBadges stops={zoneStops} />
+      <StopBadges stops={quartierStops} onSelect={onStopSelect} />
+      <StopBadges stops={zoneStops} onSelect={onStopSelect} />
+      <StopBadges stops={lineStops} onSelect={onStopSelect} />
       {selectedNeighborhood && (
         <CircleMarker
           className="cursor-pointer"

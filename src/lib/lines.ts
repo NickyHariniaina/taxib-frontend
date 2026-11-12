@@ -1,52 +1,119 @@
-import type { LatLon } from './location';
+import { API_URL } from './api';
 
-export type BusLine = {
-  ref: string;
-  directions: string[];
+/** One direction of a bus line, as returned by the API. */
+export type BusLineVariant = {
+  number: string;
+  name: string;
+  direction: string | null;
+  origin: string | null;
+  terminus: string | null;
+  color: string | null;
+  stopCount: number | null;
 };
 
-export type LinesOptions = {
-  radiusM?: number;
-  signal?: AbortSignal;
+/** A bus line and its variants (Aller / Retour / Circulaire). */
+export type BusLineGroup = {
+  number: string;
+  color: string | null;
+  variants: BusLineVariant[];
 };
 
-const DEFAULT_RADIUS_M = 1000;
-
-const OVERPASS_URL = 'https://overpass.kumi.systems/api/interpreter';
-
-type OverpassRelation = {
-  type: string;
+/** A stop served by a line. */
+export type LineStop = {
   id: number;
-  tags?: { ref?: string; name?: string };
+  name: string;
+  neighborhood: string | null;
+  lat: number;
+  lon: number;
 };
 
-export async function findLinesNear(center: LatLon, opts?: LinesOptions): Promise<BusLine[]> {
-  const radiusM = opts?.radiusM ?? DEFAULT_RADIUS_M;
-  const ql = `[out:json][timeout:60];relation["route"="bus"](around:${radiusM},${center.lat},${center.lon});out tags;`;
-  const res = await fetch(OVERPASS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ data: ql }),
-    signal: opts?.signal,
-  });
-  if (!res.ok) throw new Error(`lines-fetch-failed (${res.status})`);
-  const json = (await res.json()) as { elements: OverpassRelation[] };
+/** Every line variant, flat. */
+export async function fetchLines(
+  signal?: AbortSignal,
+): Promise<BusLineVariant[]> {
+  const res = await fetch(`${API_URL}/api/lines`, { signal });
 
-  const byRef = new Map<string, Set<string>>();
-  for (const el of json.elements ?? []) {
-    const ref = (el.tags?.ref ?? '').trim();
-    if (!ref) continue;
-    const name = (el.tags?.name ?? ref).trim();
-    if (!byRef.has(ref)) byRef.set(ref, new Set());
-    byRef.get(ref)?.add(name);
+  if (!res.ok) {
+    throw new Error(`lines-fetch-failed (${res.status})`);
   }
-  return [...byRef.entries()]
-    .map(([ref, names]) => ({ ref, directions: [...names].sort() }))
-    .sort((a, b) => a.ref.localeCompare(b.ref, undefined, { numeric: true }));
+
+  return res.json() as Promise<BusLineVariant[]>;
 }
 
-/** Line refs present near BOTH endpoints = no-transfer candidates. */
-export function directLines(a: BusLine[], b: BusLine[]): BusLine[] {
-  const refsB = new Set(b.map((l) => l.ref));
-  return a.filter((l) => refsB.has(l.ref));
+/** The stops a line number serves, both directions included. */
+export async function fetchLineStops(
+  number: string,
+  signal?: AbortSignal,
+): Promise<LineStop[]> {
+  const res = await fetch(
+    `${API_URL}/api/lines/${encodeURIComponent(number)}/stops`,
+    { signal },
+  );
+
+  if (res.status === 404) {
+    return [];
+  }
+
+  if (!res.ok) {
+    throw new Error(`line-stops-fetch-failed (${res.status})`);
+  }
+
+  return res.json() as Promise<LineStop[]>;
+}
+
+/** The lines serving a stop. Empty when the stop is served by none. */
+export async function fetchLinesAtStop(
+  stopId: number,
+  signal?: AbortSignal,
+): Promise<BusLineVariant[]> {
+  const res = await fetch(`${API_URL}/api/stops/${stopId}/lines`, { signal });
+
+  if (res.status === 404) {
+    return [];
+  }
+
+  if (!res.ok) {
+    throw new Error(`stop-lines-fetch-failed (${res.status})`);
+  }
+
+  return res.json() as Promise<BusLineVariant[]>;
+}
+
+/** Groups variants by line number, so a line reads as one entry. */
+export function groupByNumber(variants: BusLineVariant[]): BusLineGroup[] {
+  const groups = new Map<string, BusLineVariant[]>();
+
+  for (const variant of variants) {
+    const list = groups.get(variant.number);
+    if (list) list.push(variant);
+    else groups.set(variant.number, [variant]);
+  }
+
+  return [...groups.entries()]
+    .map(([number, list]) => ({
+      number,
+      color: list[0]?.color ?? null,
+      variants: list,
+    }))
+    .sort((a, b) =>
+      a.number.localeCompare(b.number, undefined, { numeric: true }),
+    );
+}
+
+/** Keeps the groups whose number, name or endpoints match the search. */
+export function filterGroups(
+  groups: BusLineGroup[],
+  query: string,
+): BusLineGroup[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return groups;
+
+  return groups.filter((group) => {
+    if (group.number.toLowerCase().includes(needle)) return true;
+    return group.variants.some((variant) =>
+      [variant.name, variant.origin, variant.terminus].some((field) =>
+        field?.toLowerCase().includes(needle),
+      ),
+    );
+  });
 }

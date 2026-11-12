@@ -43,15 +43,12 @@ const fr = {
     clear: 'Effacer {label}',
     clearField: 'Effacer',
   },
-  Journey: {
-    direct: 'Lignes directes',
-    noneDirect: 'Aucune ligne directe entre ces deux points.',
-    all: 'Toutes les lignes',
-    nearOrigin: 'Près du départ',
-    nearDest: 'Près de l’arrivée',
-    none: 'Aucune.',
-  },
   Stops: {
+    count:
+      '{count, plural, =0 {Aucun arrêt} one {# arrêt} other {# arrêts}}',
+    loading: 'Chargement des arrêts…',
+    failed: 'Impossible de charger les arrêts.',
+    clear: 'Effacer',
     section: 'Arrêts proches',
     pickOrigin: 'Définissez un départ pour voir les arrêts.',
     pickDest: 'Définissez une arrivée pour voir les arrêts.',
@@ -67,11 +64,6 @@ const fr = {
     clear: 'Effacer',
     close: 'Fermer',
     remove: 'Retirer le quartier',
-    clearStops: 'Effacer',
-    stopsLoading: 'Chargement des arrêts…',
-    stopsFailed: 'Impossible de charger les arrêts.',
-    stopsCount:
-      '{count, plural, =0 {Aucun arrêt} one {# arrêt} other {# arrêts}}',
     zoneTitle: 'Zone de recherche',
     zoneCount:
       '{count, plural, =0 {Aucun arrêt} one {# arrêt} other {# arrêts}} · {radius}',
@@ -148,6 +140,27 @@ const fr = {
       mg: 'Malagasy',
       fr: 'Français',
       en: 'English',
+    },
+  },
+  Lines: {
+    title: 'Lignes de bus',
+    browse: 'Parcourir les lignes',
+    search: 'Numéro ou nom…',
+    loading: 'Chargement des lignes…',
+    failed: 'Impossible de charger les lignes.',
+    empty: 'Aucune ligne ne correspond.',
+    none: 'Aucun bus ne s’arrête à cet endroit.',
+    atStop: 'Lignes de bus à {name}',
+    setOrigin: 'Définir comme départ',
+    setDest: 'Définir comme arrivée',
+    variantCount:
+      '{count, plural, one {# variante} other {# variantes}}',
+    stopsCount:
+      '{count, plural, =0 {aucun arrêt} one {# arrêt} other {# arrêts}}',
+    directions: {
+      aller: 'Aller',
+      retour: 'Retour',
+      circulaire: 'Circulaire',
     },
   },
 } as const;
