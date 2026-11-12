@@ -82,6 +82,14 @@ const fr = {
     quartier: 'Quartier sélectionné',
     zone: 'Zone de recherche',
   },
+  DirectLines: {
+    title: 'Lignes directes',
+    loading: 'Recherche des lignes…',
+    failed: 'Recherche des lignes indisponible.',
+    empty: 'Aucune ligne directe entre ces deux points. Déplacez un point pour élargir.',
+    fromStart: 'Distance depuis le départ',
+    fromEnd: 'Distance depuis l’arrivée',
+  },
   Tour: {
     prev: 'Étape précédente',
     skip: 'Passer',
