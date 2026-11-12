@@ -77,6 +77,11 @@ const mg = {
     clear: 'Hamafa',
     close: 'Hidio',
     remove: 'Esory ny kafo',
+    clearStops: 'Hamafa',
+    stopsLoading: 'Miampahibema ny fijanonana…',
+    stopsFailed: 'Tsy azo ampitahana ny fijanonana.',
+    stopsCount:
+      '{count, plural, =0 {Tsy misy fijanonana} one {# fijanonana} other {# fijanonana}}',
     more:
       '{count, plural, one {# valiny fanampiny} other {# valiny fanampiny}} — manoratra bebe kokoa hanampy.',
     empty: 'Tsy hita ny kafo. Andramo ny anarana fohy.',

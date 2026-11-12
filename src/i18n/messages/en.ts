@@ -65,6 +65,11 @@ const en = {
     clear: 'Clear',
     close: 'Close',
     remove: 'Remove the neighborhood',
+    clearStops: 'Clear',
+    stopsLoading: 'Loading stops…',
+    stopsFailed: 'Couldn’t load the stops.',
+    stopsCount:
+      '{count, plural, =0 {No stops} one {# stop} other {# stops}}',
     more: '{count, plural, one {# more result} other {# more results}} — type more to narrow down.',
     empty: 'No neighborhood found. Try a shorter name.',
     error: 'Couldn’t load neighborhoods. Check your connection.',

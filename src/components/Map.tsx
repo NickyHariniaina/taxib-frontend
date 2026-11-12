@@ -10,7 +10,7 @@ import {
   useMapEvents,
 } from 'react-leaflet';
 import type { Stop } from '../lib/stops';
-import type { Neighborhood } from '../lib/neighborhoods';
+import type { Neighborhood, NeighborhoodStop } from '../lib/neighborhoods';
 import { useAppearance } from '../lib/useAppearance';
 import { useFormatter, useTranslations } from '../i18n';
 import L, { type LatLngExpression, type LeafletMouseEvent } from 'leaflet';
@@ -36,6 +36,24 @@ const originIcon = L.icon({
 // Reuse one instance for both markers (same artwork, cheaper DOM).
 const destIcon = originIcon;
 
+/** Escapes text interpolated into the inline SVG of a div icon. */
+const escapeHtml = (value: string) =>
+  value.replace(
+    /[&<>"']/g,
+    (char) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[char] ?? char,
+  );
+
+/** Bus glyph inside a filled disc. */
+const BUS_GLYPH =
+  'M6 5h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-.5v1.5a.5.5 0 0 1-1 0V15h-8v1.5a.5.5 0 0 1-1 0V15H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1ZM5 7v4h14V7H5Zm1.5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z';
+
 export type MapProps = {
   origin: LatLon | null;
   dest: LatLon | null;
@@ -47,6 +65,10 @@ export type MapProps = {
   path: LatLon[] | null;
   /** Currently selected quartier, shown on the map. */
   selectedNeighborhood: Neighborhood | null;
+  /** Stops of the selected quartier, drawn as bus-stop icons. */
+  quartierStops: NeighborhoodStop[];
+  /** True once the selected quartier's stops resolved (empty or not). */
+  quartierStopsLoaded: boolean;
   /** Removes the selected quartier mark. */
   onClearNeighborhood: () => void;
   /** Removes the start (origin) pin. */
@@ -85,6 +107,43 @@ function stopMapClick(e: LeafletMouseEvent) {
   L.DomEvent.stopPropagation(e.originalEvent);
 }
 
+/** Bus-stop icon for a quartier stop: a disc with a bus glyph. */
+function makeStopIcon(color: string, name: string): L.DivIcon {
+  return L.divIcon({
+    className: 'quartier-stop-icon',
+    html: `<svg viewBox="0 0 24 24" width="22" height="22" role="img" aria-label="${escapeHtml(name)}"><circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="1.5"/><path d="${BUS_GLYPH}" fill="white"/></svg>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+}
+
+/** Frames the selected quartier: fits its stops, or zooms to its centre. */
+function FitQuartier({
+  center,
+  points,
+  loaded,
+}: {
+  center: LatLon;
+  points: LatLon[];
+  loaded: boolean;
+}) {
+  const map = useMap();
+  const key = `${center.lat},${center.lon}|${points.length}|${loaded}`;
+  useEffect(() => {
+    if (!loaded) return;
+    if (points.length > 0) {
+      map.flyToBounds(
+        points.map((p) => [p.lat, p.lon] as [number, number]),
+        { padding: [48, 48], maxZoom: 17, duration: 1.2 },
+      );
+    } else {
+      map.flyTo([center.lat, center.lon], 15, { duration: 1.2 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return null;
+}
+
 export default function Map({
   origin,
   dest,
@@ -93,6 +152,8 @@ export default function Map({
   destStops,
   path,
   selectedNeighborhood,
+  quartierStops,
+  quartierStopsLoaded,
   onClearNeighborhood,
   onClearOrigin,
   onClearDest,
@@ -118,6 +179,15 @@ export default function Map({
     return true;
   };
   const center = useMemo<LatLngExpression>(() => [TANA.lat, TANA.lon], []);
+  // One icon per stop: the glyph carries the stop name for screen readers.
+  const stopIcons = useMemo(
+    () =>
+      quartierStops.map((s) => ({
+        stop: s,
+        icon: makeStopIcon(accentColor, s.name),
+      })),
+    [quartierStops, accentColor],
+  );
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
       <TileLayer
@@ -125,6 +195,16 @@ export default function Map({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <FlyTo focus={focus} />
+      {selectedNeighborhood && (
+        <FitQuartier
+          center={{
+            lat: selectedNeighborhood.latitude,
+            lon: selectedNeighborhood.longitude,
+          }}
+          points={quartierStops.map((s) => ({ lat: s.lat, lon: s.lon }))}
+          loaded={quartierStopsLoaded}
+        />
+      )}
       <ClickSetter onMapClick={onMapClick} />
       {path && path.length > 1 && (
         <Polyline
@@ -208,6 +288,17 @@ export default function Map({
           }}
         />
       )}
+      {stopIcons.map(({ stop, icon }) => (
+        <Marker
+          key={stop.id}
+          icon={icon}
+          position={[stop.lat, stop.lon]}
+        >
+          <Tooltip direction="top" offset={[0, -10]}>
+            {stop.name}
+          </Tooltip>
+        </Marker>
+      ))}
       {selectedNeighborhood && (
         <CircleMarker
           className="cursor-pointer"

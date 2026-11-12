@@ -2,13 +2,17 @@
 import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import QuartierSearch from "./components/QuartierSearch";
-import QuartierChip from "./components/QuartierChip";
+import QuartierBar from "./components/QuartierBar";
 import Tour from "./components/Tour";
 import TourPrompt from "./components/TourPrompt";
 import TripDrawer from "./components/TripDrawer";
 import { getCurrentPosition, type LatLon } from "./lib/location";
 import type { Place } from "./lib/geocode";
-import type { Neighborhood } from "./lib/neighborhoods";
+import {
+    getNeighborhoodStops,
+    type Neighborhood,
+    type NeighborhoodStop,
+} from "./lib/neighborhoods";
 import { findNearbyStops, type Stop } from "./lib/stops";
 import { findLinesNear, type BusLine } from "./lib/lines";
 import { getRoadPath, type RoadPath } from "./lib/directions";
@@ -17,6 +21,19 @@ import { useTranslations, type ErrorKey } from "./i18n";
 
 /** Label sentinel translated at render, so it follows the active locale. */
 const GPS_LABEL = "\u0000gps";
+
+/**
+ * Stops of the selected quartier. Kept in one object so a new selection
+ * replaces the previous stops in the same render, instead of leaving the old
+ * ones on screen until the fetch settles.
+ */
+type QuartierStops = {
+  /** Quartier the stops belong to. */
+  id: number;
+  stops: NeighborhoodStop[];
+  loading: boolean;
+  failed: boolean;
+};
 
 const coordsLabel = (p: LatLon) => `${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}`;
 const keyOf = (p: LatLon | null) => (p ? `${p.lat},${p.lon}` : "unset");
@@ -29,6 +46,11 @@ export default function App() {
     const [originLabel, setOriginLabel] = useState("");
     const [destLabel, setDestLabel] = useState("");
     const [selectedQuartier, setSelectedQuartier] = useState<Neighborhood | null>(
+        null,
+    );
+    // Bumped on every pick, so re-picking the same quartier refetches it.
+    const [quartierPick, setQuartierPick] = useState(0);
+    const [quartierStops, setQuartierStops] = useState<QuartierStops | null>(
         null,
     );
     const [focus, setFocus] = useState<LatLon | null>(null);
@@ -153,6 +175,50 @@ export default function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [keyOf(origin), keyOf(dest)]);
 
+    // Stops of the selected quartier, straight from the API. A 404 means the
+    // quartier has no stops, which is an empty list rather than a failure.
+    useEffect(() => {
+        if (!selectedQuartier) {
+            setQuartierStops(null);
+            return;
+        }
+        const ctrl = new AbortController();
+        getNeighborhoodStops(selectedQuartier.name, ctrl.signal)
+            .then((stops) => {
+                if (ctrl.signal.aborted) return;
+                setQuartierStops({
+                    id: selectedQuartier.id,
+                    stops,
+                    loading: false,
+                    failed: false,
+                });
+            })
+            .catch((e) => {
+                if (ctrl.signal.aborted) return;
+                if (e instanceof DOMException && e.name === "AbortError") return;
+                setQuartierStops({
+                    id: selectedQuartier.id,
+                    stops: [],
+                    loading: false,
+                    failed: true,
+                });
+            });
+        return () => ctrl.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedQuartier?.id, quartierPick]);
+
+    /** Selects a quartier and clears the previous one from the map. */
+    const selectQuartier = (neighborhood: Neighborhood) => {
+        setSelectedQuartier(neighborhood);
+        setQuartierPick((n) => n + 1);
+        setQuartierStops({
+            id: neighborhood.id,
+            stops: [],
+            loading: true,
+            failed: false,
+        });
+    };
+
     const useGps = async () => {
         try {
             setError(null);
@@ -217,8 +283,11 @@ export default function App() {
         setDestLabel("");
     };
 
-    /** Removes the quartier mark from the map. */
-    const clearQuartier = () => setSelectedQuartier(null);
+    /** Removes the quartier mark and its stops from the map. */
+    const clearQuartier = () => {
+        setSelectedQuartier(null);
+        setQuartierStops(null);
+    };
 
     /** Removes one endpoint and its label; shared by the drawer and the map. */
     const clearOrigin = () => {
@@ -236,6 +305,12 @@ export default function App() {
         originLabel === GPS_LABEL ? t("currentLocation") : originLabel;
     const destText = destLabel === GPS_LABEL ? t("currentLocation") : destLabel;
 
+    // Stops of the quartier on screen; null until its fetch settles.
+    const stopList =
+        quartierStops && quartierStops.id === selectedQuartier?.id
+            ? quartierStops
+            : null;
+
     return (
         <div className="relative h-svh overflow-hidden bg-canvas text-ink overscroll-none">
             {/* map owns the screen */}
@@ -248,6 +323,8 @@ export default function App() {
                     destStops={destStops}
                     path={road?.path ?? null}
                     selectedNeighborhood={selectedQuartier}
+                    quartierStops={stopList?.stops ?? []}
+                    quartierStopsLoaded={stopList !== null && !stopList.loading}
                     onClearNeighborhood={clearQuartier}
                     onClearOrigin={clearOrigin}
                     onClearDest={clearDest}
@@ -410,10 +487,13 @@ export default function App() {
                 </svg>
             </button>
 
-            {/* selected quartier: name + remove */}
+            {/* selected quartier: name, stop count, clear */}
             {selectedQuartier && (
-                <QuartierChip
+                <QuartierBar
                     name={selectedQuartier.name}
+                    count={stopList ? stopList.stops.length : null}
+                    loading={stopList?.loading ?? true}
+                    failed={stopList?.failed ?? false}
                     onClear={clearQuartier}
                 />
             )}
@@ -423,13 +503,7 @@ export default function App() {
                 onClose={() => setQuartierOpen(false)}
                 selectedId={selectedQuartier?.id ?? null}
                 onClear={clearQuartier}
-                onSelect={(neighborhood) => {
-                    setSelectedQuartier(neighborhood);
-                    setFocus({
-                        lat: neighborhood.latitude,
-                        lon: neighborhood.longitude,
-                    });
-                }}
+                onSelect={selectQuartier}
             />
 
             <TourPrompt
