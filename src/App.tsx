@@ -787,6 +787,7 @@ export default function App() {
                         markTourSeen();
                         setTour("idle");
                     }}
+                    onToggleDrawer={setDrawerOpen}
                 />
             )}
         </div>

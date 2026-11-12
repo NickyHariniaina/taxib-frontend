@@ -107,9 +107,13 @@ const mg = {
         title: 'Ny kafo',
         body: 'Karohina ny kafo amin’ny anarany, na dia diso aza ny fanamarihana. Ao amin’ny sary, ny kitihonady voalohany no manao ny toerana mpandehana, ary ny manaraka no manao ny toerana tratra.',
       },
+      lines: {
+        title: 'Ny lalana boriby',
+        body: 'Ao amin’ny meny dia misy ny lalana: isa, lalana ary fijanonana. Safidio ny iray mba hahita azy ao amin’ny sary, ary kitiho ny fijanonana hahita ny bus mandalo azy.',
+      },
       stops: {
         title: 'Ny fijanonana boriby',
-        body: 'Kitiho ny bokon’ny bus, dia ny sary : ny fijanonana manodidina ny toerana dia aseho ao anatin’ny zone 500 m.',
+        body: 'Kitiho ny bokon’ny bus, dia ny sary : ny fijanonana manodidina ny toerana dia aseho ao anatin’ny zone 500 m. Kitiho ny fijanonana hahita ny bus mandalo azy.',
       },
     },
   },
