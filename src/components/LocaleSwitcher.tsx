@@ -1,4 +1,5 @@
 import {
+  BETA_LOCALES,
   locales,
   useLocale,
   useLocaleControl,
@@ -24,23 +25,36 @@ export default function LocaleSwitcher() {
       aria-label={t('label')}
       className="flex items-center gap-0.5 rounded-lg bg-raised p-0.5 ring-1 ring-line"
     >
-      {locales.map((option) => (
-        <button
-          key={option}
-          type="button"
-          lang={option}
-          title={names[option]}
-          aria-pressed={option === locale}
-          onClick={() => setLocale(option)}
-          className={`rounded-md px-2 py-1 text-[11px] font-bold uppercase transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
-            option === locale
-              ? 'bg-raised-strong text-ink-strong'
-              : 'text-muted hover:text-ink-strong'
-          }`}
-        >
-          {option}
-        </button>
-      ))}
+      {locales.map((option) => {
+        const beta = BETA_LOCALES.includes(option);
+        return (
+          <button
+            key={option}
+            type="button"
+            lang={option}
+            title={beta ? `${names[option]} — ${t('beta')}` : names[option]}
+            aria-label={beta ? `${names[option]} — ${t('beta')}` : undefined}
+            aria-pressed={option === locale}
+            onClick={() => setLocale(option)}
+            className={`rounded-md px-2 py-1 text-[11px] font-bold uppercase transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+              option === locale
+                ? 'bg-raised-strong text-ink-strong'
+                : 'text-muted hover:text-ink-strong'
+            }`}
+          >
+            {option}
+            {beta && (
+              <span
+                aria-hidden="true"
+                title={t('beta')}
+                className="ml-0.5 align-super text-[8px] font-bold text-brand"
+              >
+                β
+              </span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

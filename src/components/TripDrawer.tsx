@@ -11,7 +11,13 @@ import type { Place } from '../lib/geocode';
 import type { BusLine } from '../lib/lines';
 import type { LatLon } from '../lib/location';
 import type { Stop } from '../lib/stops';
-import { useFormatter, useTranslations, type ErrorKey } from '../i18n';
+import {
+  BETA_LOCALES,
+  useFormatter,
+  useLocale,
+  useTranslations,
+  type ErrorKey,
+} from '../i18n';
 
 type Props = {
   open: boolean;
@@ -83,7 +89,9 @@ export default function TripDrawer({
   const tApp = useTranslations('App');
   const tStops = useTranslations('Stops');
   const tNotice = useTranslations();
+  const tLocale = useTranslations('Locale');
   const format = useFormatter();
+  const locale = useLocale();
 
   const tripReady = origin !== null && dest !== null;
   // One banner at a time: connectivity failures would otherwise stack up.
@@ -317,6 +325,11 @@ export default function TripDrawer({
           </span>
           <LocaleSwitcher />
         </div>
+        {BETA_LOCALES.includes(locale) && (
+          <p className="px-2 pb-1.5 text-[11px] leading-relaxed text-faint">
+            {tLocale('betaNote')}
+          </p>
+        )}
         <button
           type="button"
           onClick={onReplayTour}

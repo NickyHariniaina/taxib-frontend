@@ -148,6 +148,9 @@ const mg = {
   },
   Locale: {
     label: 'Fiteny',
+    beta: 'beta',
+    betaNote:
+      'Mbola jerena ny dikantara. Mety mbola misy dikantarana tsy mety.',
     names: {
       mg: 'Malagasy',
       fr: 'Français',

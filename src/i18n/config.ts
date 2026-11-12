@@ -7,6 +7,9 @@ export const locales = ['mg', 'fr', 'en'] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'fr';
 
+/** Locales whose copy still needs a native-speaker review: flagged as beta. */
+export const BETA_LOCALES: readonly Locale[] = ['mg'];
+
 // `en` is checked against `MessageShape` in its own file. The cast only
 // bridges the literal string types that `fr` carries (`as const`), which the
 // provider needs so ICU arguments stay typed at call sites.

@@ -127,6 +127,9 @@ const en = {
   },
   Locale: {
     label: 'Language',
+    beta: 'beta',
+    betaNote:
+      'Translation under review. Some passages may still read awkwardly.',
     names: {
       mg: 'Malagasy',
       fr: 'Français',

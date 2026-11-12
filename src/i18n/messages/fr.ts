@@ -126,6 +126,9 @@ const fr = {
   },
   Locale: {
     label: 'Langue',
+    beta: 'bêta',
+    betaNote:
+      'Traduction en cours de relecture. Des passages peuvent encore être mal traduits.',
     names: {
       mg: 'Malagasy',
       fr: 'Français',
