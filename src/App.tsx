@@ -578,17 +578,21 @@ export default function App() {
                     }`}
                 >
                     <svg
-                        viewBox="0 0 24 24"
+                        viewBox="0 0 28 28"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         aria-hidden="true"
-                        className="h-5 w-5"
+                        className="h-7 w-7"
                     >
-                        <rect x="4" y="4" width="16" height="13" rx="2" />
-                        <path d="M4 10h16M8 17v3M16 17v3M8 20h8" />
+                        <path
+                            transform="translate(-1 -1) scale(0.78)"
+                            d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm-1 0h14V6H3v10zm1-11h12c.55 0 1 .45 1 1v3H4V6c0-.55.45-1 1-1zm2 12a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm8 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM7 13V7h10v6H7z"
+                        />
+                        <circle cx="19.5" cy="18.5" r="5" />
+                        <path d="M23 22 L26 25" />
                     </svg>
                 </button>
                 <button
