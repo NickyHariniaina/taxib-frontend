@@ -14,7 +14,8 @@ import {
     type NeighborhoodStop,
 } from "./lib/neighborhoods";
 import { findNearbyStops, type Stop } from "./lib/stops";
-import { findLinesNear, type BusLine } from "./lib/lines";
+import { fetchLineStops, type BusLineVariant, type LineStop } from "./lib/lines";
+import LineDialog from "./components/LineDialog";
 import { getRoadPath, type RoadPath } from "./lib/directions";
 import { hasSeenTour, markTourSeen } from "./lib/tour";
 import { useFormatter, useTranslations, type ErrorKey } from "./i18n";
@@ -55,6 +56,7 @@ const keyOf = (p: LatLon | null) => (p ? `${p.lat},${p.lon}` : "unset");
 export default function App() {
     const t = useTranslations("App");
     const tQuartier = useTranslations("Quartier");
+    const tStops = useTranslations("Stops");
     const format = useFormatter();
     // No defaults: the user sets each endpoint via search, GPS, or map tap.
     const [origin, setOrigin] = useState<LatLon | null>(null);
@@ -79,10 +81,11 @@ export default function App() {
     const [destStops, setDestStops] = useState<Stop[]>([]);
     const [stopsLoading, setStopsLoading] = useState(false);
     const [stopsError, setStopsError] = useState<ErrorKey | null>(null);
-    const [originLines, setOriginLines] = useState<BusLine[]>([]);
-    const [destLines, setDestLines] = useState<BusLine[]>([]);
-    const [linesLoading, setLinesLoading] = useState(false);
-    const [linesError, setLinesError] = useState<ErrorKey | null>(null);
+    const [lineDialogOpen, setLineDialogOpen] = useState(false);
+    const [selectedLine, setSelectedLine] = useState<BusLineVariant | null>(null);
+    const [lineStops, setLineStops] = useState<LineStop[]>([]);
+    const [lineStopsLoading, setLineStopsLoading] = useState(false);
+    const [lineStopsFailed, setLineStopsFailed] = useState(false);
     const [road, setRoad] = useState<RoadPath | null>(null);
     const [roadLoading, setRoadLoading] = useState(false);
     const [roadError, setRoadError] = useState<ErrorKey | null>(null);
@@ -103,51 +106,35 @@ export default function App() {
         return () => document.removeEventListener("keydown", onKey);
     }, [quartierOpen, tour]);
 
-    // Spike: live OSM stops + lines around each set endpoint. Debounced + aborted;
-    // the future backend endpoints keep this exact UI.
+    // Stops around each set endpoint, from the API. Debounced + aborted.
     useEffect(() => {
         setStopsError(null);
-        setLinesError(null);
         if (!origin && !dest) {
             setOriginStops([]);
             setDestStops([]);
-            setOriginLines([]);
-            setDestLines([]);
             setStopsLoading(false);
-            setLinesLoading(false);
             return;
         }
         setStopsLoading(true);
-        setLinesLoading(true);
         const ctrl = new AbortController();
         const timer = setTimeout(async () => {
             try {
-                const [o, d, lo, ld] = await Promise.all([
+                const [o, d] = await Promise.all([
                     origin
                         ? findNearbyStops(origin, { signal: ctrl.signal })
                         : Promise.resolve([]),
                     dest
                         ? findNearbyStops(dest, { signal: ctrl.signal })
                         : Promise.resolve([]),
-                    origin
-                        ? findLinesNear(origin, { signal: ctrl.signal })
-                        : Promise.resolve([]),
-                    dest
-                        ? findLinesNear(dest, { signal: ctrl.signal })
-                        : Promise.resolve([]),
                 ]);
                 setOriginStops(o);
                 setDestStops(d);
-                setOriginLines(lo);
-                setDestLines(ld);
             } catch (e) {
                 if (e instanceof DOMException && e.name === "AbortError")
                     return;
                 setStopsError("Errors.stops");
-                setLinesError("Errors.lines");
             } finally {
                 setStopsLoading(false);
-                setLinesLoading(false);
             }
         }, 600);
         return () => {
@@ -305,6 +292,43 @@ export default function App() {
         });
     };
 
+    // Stops of the selected line. Re-picking the same line refetches it.
+    useEffect(() => {
+        if (!selectedLine) {
+            setLineStops([]);
+            setLineStopsFailed(false);
+            return;
+        }
+        const ctrl = new AbortController();
+        setLineStopsLoading(true);
+        setLineStopsFailed(false);
+        fetchLineStops(selectedLine.number, ctrl.signal)
+            .then((stops) => {
+                if (ctrl.signal.aborted) return;
+                setLineStops(stops);
+                setLineStopsLoading(false);
+            })
+            .catch((e) => {
+                if (ctrl.signal.aborted) return;
+                if (e instanceof DOMException && e.name === "AbortError")
+                    return;
+                setLineStopsFailed(true);
+                setLineStopsLoading(false);
+            });
+        return () => ctrl.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedLine?.number]);
+
+    /** Picks a line: it takes over the map, replacing any other selection. */
+    const selectLine = (variant: BusLineVariant) => {
+        setSelectedLine(variant);
+        setLineDialogOpen(false);
+        setSelectedQuartier(null);
+        setQuartierStops(null);
+        setZone(null);
+        setZoneMode(false);
+    };
+
     const useGps = async () => {
         try {
             setError(null);
@@ -431,6 +455,7 @@ export default function App() {
                             : null
                     }
                     zoneStops={zone?.stops ?? []}
+                    lineStops={lineStops}
                     onClearNeighborhood={clearQuartier}
                     onClearOrigin={clearOrigin}
                     onClearDest={clearDest}
@@ -541,10 +566,8 @@ export default function App() {
                 destStops={destStops}
                 stopsLoading={stopsLoading}
                 stopsError={stopsError}
-                originLines={originLines}
-                destLines={destLines}
-                linesLoading={linesLoading}
-                linesError={linesError}
+                selectedLine={selectedLine}
+                onBrowseLines={() => setLineDialogOpen(true)}
                 road={road}
                 roadLoading={roadLoading}
                 roadError={roadError}
@@ -644,16 +667,31 @@ export default function App() {
                     title={selectedQuartier.name}
                     subtitle={
                         stopList === null
-                            ? tQuartier("stopsLoading")
+                            ? tStops('loading')
                             : stopList.loading
-                              ? tQuartier("stopsLoading")
+                              ? tStops('loading')
                               : stopList.failed
-                                ? tQuartier("stopsFailed")
-                                : tQuartier("stopsCount", {
+                                ? tStops('failed')
+                                : tStops('count', {
                                       count: stopList.stops.length,
                                   })
                     }
                     onClear={clearQuartier}
+                />
+            )}
+
+            {/* selected line: its stops */}
+            {selectedLine && (
+                <SelectionBar
+                    title={`${selectedLine.number} · ${selectedLine.name}`}
+                    subtitle={
+                        lineStopsLoading
+                            ? tStops('loading')
+                            : lineStopsFailed
+                              ? tStops('failed')
+                              : tStops('count', { count: lineStops.length })
+                    }
+                    onClear={() => setSelectedLine(null)}
                 />
             )}
 
@@ -663,9 +701,9 @@ export default function App() {
                     title={tQuartier("zoneTitle")}
                     subtitle={
                         zone.loading
-                            ? tQuartier("stopsLoading")
+                            ? tStops('loading')
                             : zone.failed
-                              ? tQuartier("stopsFailed")
+                              ? tStops('failed')
                               : tQuartier("zoneCount", {
                                     count: zone.stops.length,
                                     radius: radiusLabel,
@@ -674,6 +712,12 @@ export default function App() {
                     onClear={() => setZone(null)}
                 />
             )}
+
+            <LineDialog
+                open={lineDialogOpen}
+                onClose={() => setLineDialogOpen(false)}
+                onSelect={selectLine}
+            />
 
             <QuartierSearch
                 open={quartierOpen}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import AppearancePicker from './AppearancePicker';
-import JourneyOptions from './JourneyOptions';
+import LinesPanel from './LinesPanel';
 import LocaleSwitcher from './LocaleSwitcher';
 import Notice from './Notice';
 import SearchField from './SearchField';
@@ -8,7 +8,7 @@ import StopList from './StopList';
 import { IconButton, SectionLabel } from './ui';
 import type { RoadPath } from '../lib/directions';
 import type { Place } from '../lib/geocode';
-import type { BusLine } from '../lib/lines';
+import type { BusLineVariant } from '../lib/lines';
 import type { LatLon } from '../lib/location';
 import type { Stop } from '../lib/stops';
 import {
@@ -30,10 +30,10 @@ type Props = {
   destStops: Stop[];
   stopsLoading: boolean;
   stopsError: ErrorKey | null;
-  originLines: BusLine[];
-  destLines: BusLine[];
-  linesLoading: boolean;
-  linesError: ErrorKey | null;
+  /** Line currently shown on the map, if any. */
+  selectedLine: BusLineVariant | null;
+  /** Opens the bus line catalogue. */
+  onBrowseLines: () => void;
   road: RoadPath | null;
   roadLoading: boolean;
   roadError: ErrorKey | null;
@@ -65,10 +65,8 @@ export default function TripDrawer({
   destStops,
   stopsLoading,
   stopsError,
-  originLines,
-  destLines,
-  linesLoading,
-  linesError,
+  selectedLine,
+  onBrowseLines,
   road,
   roadLoading,
   roadError,
@@ -95,7 +93,7 @@ export default function TripDrawer({
 
   const tripReady = origin !== null && dest !== null;
   // One banner at a time: connectivity failures would otherwise stack up.
-  const notice = error ?? linesError ?? stopsError ?? roadError;
+  const notice = error ?? stopsError ?? roadError;
   const endpoint = tab === 'origin' ? origin : dest;
   const shownStops = tab === 'origin' ? originStops : destStops;
   const emptyLabel = !endpoint
@@ -264,10 +262,9 @@ export default function TripDrawer({
         {notice && <Notice>{tNotice(notice)}</Notice>}
 
         {tripReady ? (
-          <JourneyOptions
-            originLines={originLines}
-            destLines={destLines}
-            loading={linesLoading}
+          <LinesPanel
+            selected={selectedLine}
+            onBrowse={onBrowseLines}
           />
         ) : (
           <p className="text-[12px] text-faint">{t('busHint')}</p>

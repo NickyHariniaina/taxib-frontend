@@ -53,16 +53,12 @@ const mg = {
     clear: 'Hamafa {label}',
     clearField: 'Hamafa',
   },
-  Journey: {
-    direct: 'Taratara mivantana',
-    noneDirect:
-      'Tsy misy taratara mivantana eo anelanelan’ireo toerana roa.',
-    all: 'Taratara rehetra',
-    nearOrigin: 'Akaiky ny toerana mpandehana',
-    nearDest: 'Akaiky ny toerana tratra',
-    none: 'Tsy misy.',
-  },
   Stops: {
+    count:
+      '{count, plural, =0 {Tsy misy fijanonana} one {# fijanonana} other {# fijanonana}}',
+    loading: 'Miampahibema ny fijanonana…',
+    failed: 'Tsy azo ampitahana ny fijanonana.',
+    clear: 'Hamafa',
     section: 'Toerana boriby akaiky',
     pickOrigin:
       'Amboary ny toerana mpandehana hahita ny toerana boriby.',
@@ -80,11 +76,6 @@ const mg = {
     clear: 'Hamafa',
     close: 'Hidio',
     remove: 'Esory ny kafo',
-    clearStops: 'Hamafa',
-    stopsLoading: 'Miampahibema ny fijanonana…',
-    stopsFailed: 'Tsy azo ampitahana ny fijanonana.',
-    stopsCount:
-      '{count, plural, =0 {Tsy misy fijanonana} one {# fijanonana} other {# fijanonana}}',
     zoneTitle: 'Faritra fikarohana',
     zoneCount:
       '{count, plural, =0 {Tsy misy fijanonana} one {# fijanonana} other {# fijanonana}} · {radius}',
@@ -170,6 +161,24 @@ const mg = {
       mg: 'Malagasy',
       fr: 'Français',
       en: 'English',
+    },
+  },
+  Lines: {
+    title: 'Ny lalana boriby',
+    browse: 'Jereo ny lalana',
+    search: 'Isa na dia anarana…',
+    loading: 'Miampahibema ny lalana…',
+    failed: 'Tsy azo ampitahana ny lalana.',
+    empty: 'Tsy misy lalana mitovy.',
+    none: 'Tsy misy boriby mijanona eto.',
+    variantCount:
+      '{count, plural, one {# karazana} other {# karazana}}',
+    stopsCount:
+      '{count, plural, =0 {tsy misy fijanonana} one {# fijanonana} other {# fijanonana}}',
+    directions: {
+      aller: 'Alalaka',
+      retour: 'Miverina',
+      circulaire: 'Tontolo',
     },
   },
 } as const satisfies MessageShape;

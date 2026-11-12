@@ -44,15 +44,12 @@ const en = {
     clear: 'Clear {label}',
     clearField: 'Clear',
   },
-  Journey: {
-    direct: 'Direct lines',
-    noneDirect: 'No direct line between these two points.',
-    all: 'All lines',
-    nearOrigin: 'Near the origin',
-    nearDest: 'Near the destination',
-    none: 'None.',
-  },
   Stops: {
+    count:
+      '{count, plural, =0 {No stops} one {# stop} other {# stops}}',
+    loading: 'Loading stops…',
+    failed: 'Couldn’t load the stops.',
+    clear: 'Clear',
     section: 'Nearby stops',
     pickOrigin: 'Set an origin to see stops.',
     pickDest: 'Set a destination to see stops.',
@@ -68,11 +65,6 @@ const en = {
     clear: 'Clear',
     close: 'Close',
     remove: 'Remove the neighborhood',
-    clearStops: 'Clear',
-    stopsLoading: 'Loading stops…',
-    stopsFailed: 'Couldn’t load the stops.',
-    stopsCount:
-      '{count, plural, =0 {No stops} one {# stop} other {# stops}}',
     zoneTitle: 'Search zone',
     zoneCount:
       '{count, plural, =0 {No stops} one {# stop} other {# stops}} · {radius}',
@@ -149,6 +141,24 @@ const en = {
       mg: 'Malagasy',
       fr: 'Français',
       en: 'English',
+    },
+  },
+  Lines: {
+    title: 'Bus lines',
+    browse: 'Browse the lines',
+    search: 'Number or name…',
+    loading: 'Loading the lines…',
+    failed: 'Couldn’t load the lines.',
+    empty: 'No line matches.',
+    none: 'No bus stops here.',
+    variantCount:
+      '{count, plural, one {# variant} other {# variants}}',
+    stopsCount:
+      '{count, plural, =0 {no stops} one {# stop} other {# stops}}',
+    directions: {
+      aller: 'Outbound',
+      retour: 'Inbound',
+      circulaire: 'Circular',
     },
   },
 } as const satisfies MessageShape;

@@ -65,6 +65,8 @@ export type MapProps = {
   zone: { center: LatLon; radiusM: number } | null;
   /** Stops inside the zone, drawn as bus-stop icons. */
   zoneStops: MapStop[];
+  /** Stops of the selected line, drawn as bus-stop icons. */
+  lineStops: MapStop[];
   /** Removes the selected quartier mark. */
   onClearNeighborhood: () => void;
   /** Removes the start (origin) pin. */
@@ -174,6 +176,7 @@ export default function Map({
   quartierStopsLoaded,
   zone,
   zoneStops,
+  lineStops,
   onClearNeighborhood,
   onClearOrigin,
   onClearDest,
@@ -325,6 +328,7 @@ export default function Map({
       )}
       <StopBadges stops={quartierStops} />
       <StopBadges stops={zoneStops} />
+      <StopBadges stops={lineStops} />
       {selectedNeighborhood && (
         <CircleMarker
           className="cursor-pointer"
