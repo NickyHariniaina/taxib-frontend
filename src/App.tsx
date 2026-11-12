@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import MapLegend, { type LegendEntry } from "./components/MapLegend";
+import DirectLines from "./components/DirectLines";
 import QuartierSearch from "./components/QuartierSearch";
 import SelectionBar from "./components/SelectionBar";
 import Tour from "./components/Tour";
@@ -15,7 +16,16 @@ import {
     type NeighborhoodStop,
 } from "./lib/neighborhoods";
 import { findNearbyStops, type Stop } from "./lib/stops";
-import { fetchLines, fetchLineStops, type BusLineVariant, type LineStop } from "./lib/lines";
+import {
+    fetchLines,
+    fetchLineStops,
+    fetchLinesNear,
+    intersectDirect,
+    type BusLineGroup,
+    type BusLineVariant,
+    type DirectLine,
+    type LineStop,
+} from "./lib/lines";
 import LineDialog from "./components/LineDialog";
 import StopLinesDialog from "./components/StopLinesDialog";
 import type { TappableStop } from "./components/StopBadges";
@@ -91,6 +101,9 @@ export default function App() {
     const [lineStops, setLineStops] = useState<LineStop[]>([]);
     const [lineStopsLoading, setLineStopsLoading] = useState(false);
     const [lineStopsFailed, setLineStopsFailed] = useState(false);
+    const [directLines, setDirectLines] = useState<DirectLine[]>([]);
+    const [directLoading, setDirectLoading] = useState(false);
+    const [directFailed, setDirectFailed] = useState(false);
     const [stopForLines, setStopForLines] = useState<TappableStop | null>(null);
     const [road, setRoad] = useState<RoadPath | null>(null);
     const [roadLoading, setRoadLoading] = useState(false);
@@ -141,6 +154,40 @@ export default function App() {
                 setStopsError("Errors.stops");
             } finally {
                 setStopsLoading(false);
+            }
+        }, 250);
+        return () => {
+            clearTimeout(timer);
+            ctrl.abort();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [keyOf(origin), keyOf(dest)]);
+
+    // Direct lines: the line numbers serving a stop near both endpoints.
+    // Two requests, intersected here, so the list matches the dots on screen.
+    useEffect(() => {
+        setDirectFailed(false);
+        if (!origin || !dest) {
+            setDirectLines([]);
+            setDirectLoading(false);
+            return;
+        }
+        setDirectLoading(true);
+        const ctrl = new AbortController();
+        const timer = setTimeout(async () => {
+            try {
+                const [fromStart, fromEnd] = await Promise.all([
+                    fetchLinesNear(origin, { signal: ctrl.signal }),
+                    fetchLinesNear(dest, { signal: ctrl.signal }),
+                ]);
+                if (ctrl.signal.aborted) return;
+                setDirectLines(intersectDirect(fromStart, fromEnd));
+            } catch (e) {
+                if (e instanceof DOMException && e.name === "AbortError") return;
+                setDirectLines([]);
+                setDirectFailed(true);
+            } finally {
+                if (!ctrl.signal.aborted) setDirectLoading(false);
             }
         }, 250);
         return () => {
@@ -356,6 +403,16 @@ export default function App() {
         setZoneMode(false);
     };
 
+    /** Paints a direct line on the map, or clears it when already drawn. */
+    const toggleDirectLine = (group: BusLineGroup) => {
+        if (selectedLine?.number === group.number) {
+            setSelectedLine(null);
+            return;
+        }
+        const variant = group.variants[0];
+        if (variant) selectLine(variant);
+    };
+
     const useGps = async () => {
         try {
             setError(null);
@@ -509,6 +566,16 @@ export default function App() {
             </div>
 
             <MapLegend entries={legendEntries} />
+
+            {!drawerOpen && origin && dest && (
+                <DirectLines
+                    lines={directLines}
+                    loading={directLoading}
+                    failed={directFailed}
+                    selected={selectedLine?.number ?? null}
+                    onSelect={toggleDirectLine}
+                />
+            )}
 
             {/* floating top bar: hamburger + trip at a glance + locate */}
             <header className="absolute inset-x-3 top-3 z-[1100] flex items-center gap-2 pt-[env(safe-area-inset-top)]">
