@@ -14,6 +14,9 @@ const en = {
     useGps: 'Use GPS',
     currentLocation: 'Current location',
     searchQuartier: 'Search a neighborhood',
+    searchStops: 'Search bus stops',
+    zoneHint: 'Tap the map to choose the centre of the zone.',
+    zoneCancel: 'Cancel',
     removeOrigin: 'Tap to remove the departure',
     removeDest: 'Tap to remove the destination',
   },
@@ -70,6 +73,9 @@ const en = {
     stopsFailed: 'Couldn’t load the stops.',
     stopsCount:
       '{count, plural, =0 {No stops} one {# stop} other {# stops}}',
+    zoneTitle: 'Search zone',
+    zoneCount:
+      '{count, plural, =0 {No stops} one {# stop} other {# stops}} · {radius}',
     more: '{count, plural, one {# more result} other {# more results}} — type more to narrow down.',
     empty: 'No neighborhood found. Try a shorter name.',
     error: 'Couldn’t load neighborhoods. Check your connection.',

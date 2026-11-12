@@ -63,7 +63,7 @@ export default function StopList({
                 }`}
               />
               <span className="min-w-0 flex-1 truncate text-[13px] text-ink">
-                {s.name ?? t('unnamed')}
+                {s.name || t('unnamed')}
               </span>
               <span className="shrink-0 font-mono text-[11px] tabular-nums text-faint">
                 {format.number(s.distanceM, {
