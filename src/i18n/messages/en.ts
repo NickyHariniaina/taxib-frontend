@@ -83,6 +83,14 @@ const en = {
     quartier: 'Selected neighborhood',
     zone: 'Search zone',
   },
+  DirectLines: {
+    title: 'Direct lines',
+    loading: 'Looking for lines…',
+    failed: 'Line search unavailable.',
+    empty: 'No direct line between these two points. Move a point to widen the search.',
+    fromStart: 'Distance from the departure',
+    fromEnd: 'Distance from the arrival',
+  },
   Tour: {
     prev: 'Previous step',
     skip: 'Skip',

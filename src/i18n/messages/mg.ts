@@ -96,6 +96,14 @@ const mg = {
     quartier: 'Ny kafo voafidy',
     zone: 'Faritra fikarohana',
   },
+  DirectLines: {
+    title: 'Lalana mivantana',
+    loading: 'Mitady lalana…',
+    failed: 'Tsy afaka mikaroka lalana.',
+    empty: 'Tsy misy lalana mivantana amin’ireo teboka roa ireo. Afindrao ny iray.',
+    fromStart: 'Elanelana avy amin’ny toerana mpandehana',
+    fromEnd: 'Elanelana avy amin’ny toerana tratra',
+  },
   Tour: {
     prev: 'Dingana teo aloha',
     skip: 'Hetsika',
