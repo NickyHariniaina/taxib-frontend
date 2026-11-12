@@ -150,6 +150,9 @@ const fr = {
     failed: 'Impossible de charger les lignes.',
     empty: 'Aucune ligne ne correspond.',
     none: 'Aucun bus ne s’arrête à cet endroit.',
+    atStop: 'Lignes de bus à {name}',
+    setOrigin: 'Définir comme départ',
+    setDest: 'Définir comme arrivée',
     variantCount:
       '{count, plural, one {# variante} other {# variantes}}',
     stopsCount:

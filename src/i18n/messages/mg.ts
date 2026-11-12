@@ -171,6 +171,9 @@ const mg = {
     failed: 'Tsy azo ampitahana ny lalana.',
     empty: 'Tsy misy lalana mitovy.',
     none: 'Tsy misy boriby mijanona eto.',
+    atStop: 'Ny lalana boriby amin’ny {name}',
+    setOrigin: 'Hatrehana ho toerana mpandehana',
+    setDest: 'Hatrehana ho toerana tratra',
     variantCount:
       '{count, plural, one {# karazana} other {# karazana}}',
     stopsCount:

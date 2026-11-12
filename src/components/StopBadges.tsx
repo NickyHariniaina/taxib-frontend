@@ -26,17 +26,31 @@ const BUS_GLYPH =
  * Bus-stop badge: a rounded square in the accent colour with a bus glyph.
  * Solid shapes, not hairlines — at 30px a thin path turns to mush.
  */
-function makeStopIcon(color: string, name: string): L.DivIcon {
+function makeStopIcon(color: string, name: string, clickable: boolean): L.DivIcon {
   return L.divIcon({
-    className: 'quartier-stop-icon',
+    className: `quartier-stop-icon${clickable ? ' cursor-pointer' : ''}`,
     html: `<svg viewBox="0 0 30 30" width="30" height="30" role="img" aria-label="${escapeHtml(name)}"><rect x="1" y="1" width="28" height="28" rx="8" fill="${color}" stroke="white" stroke-width="2"/><path fill="white" d="${BUS_GLYPH}" transform="translate(4 4) scale(0.9)"/></svg>`,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
   });
 }
 
+/** A stop that can be tapped: enough to show it and to look up its lines. */
+export type TappableStop = {
+  id: number;
+  name: string;
+  lat: number;
+  lon: number;
+};
+
 /** Stops drawn on the map as bus-stop badges, with their name on hover. */
-export default function StopBadges({ stops }: { stops: MapStop[] }) {
+export default function StopBadges({
+  stops,
+  onSelect,
+}: {
+  stops: MapStop[];
+  onSelect?: (stop: TappableStop) => void;
+}) {
   const { accentColor } = useAppearance();
   const t = useTranslations('Stops');
 
@@ -45,8 +59,15 @@ export default function StopBadges({ stops }: { stops: MapStop[] }) {
       {stops.map((stop) => (
         <Marker
           key={stop.id}
-          icon={makeStopIcon(accentColor, stop.name || t('unnamed'))}
+          icon={makeStopIcon(
+            accentColor,
+            stop.name || t('unnamed'),
+            onSelect !== undefined,
+          )}
           position={[stop.lat, stop.lon]}
+          eventHandlers={
+            onSelect ? { click: () => onSelect(stop) } : undefined
+          }
         >
           <Tooltip direction="top" offset={[0, -14]}>
             {stop.name || t('unnamed')}

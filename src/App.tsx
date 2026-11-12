@@ -16,6 +16,8 @@ import {
 import { findNearbyStops, type Stop } from "./lib/stops";
 import { fetchLineStops, type BusLineVariant, type LineStop } from "./lib/lines";
 import LineDialog from "./components/LineDialog";
+import StopLinesDialog from "./components/StopLinesDialog";
+import type { TappableStop } from "./components/StopBadges";
 import { getRoadPath, type RoadPath } from "./lib/directions";
 import { hasSeenTour, markTourSeen } from "./lib/tour";
 import { useFormatter, useTranslations, type ErrorKey } from "./i18n";
@@ -86,6 +88,7 @@ export default function App() {
     const [lineStops, setLineStops] = useState<LineStop[]>([]);
     const [lineStopsLoading, setLineStopsLoading] = useState(false);
     const [lineStopsFailed, setLineStopsFailed] = useState(false);
+    const [stopForLines, setStopForLines] = useState<TappableStop | null>(null);
     const [road, setRoad] = useState<RoadPath | null>(null);
     const [roadLoading, setRoadLoading] = useState(false);
     const [roadError, setRoadError] = useState<ErrorKey | null>(null);
@@ -319,10 +322,14 @@ export default function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedLine?.number]);
 
+    /** A stop badge was tapped: show the lines that serve it. */
+    const showLinesAtStop = (stop: TappableStop) => setStopForLines(stop);
+
     /** Picks a line: it takes over the map, replacing any other selection. */
     const selectLine = (variant: BusLineVariant) => {
         setSelectedLine(variant);
         setLineDialogOpen(false);
+        setStopForLines(null);
         setSelectedQuartier(null);
         setQuartierStops(null);
         setZone(null);
@@ -456,6 +463,7 @@ export default function App() {
                     }
                     zoneStops={zone?.stops ?? []}
                     lineStops={lineStops}
+                    onStopSelect={showLinesAtStop}
                     onClearNeighborhood={clearQuartier}
                     onClearOrigin={clearOrigin}
                     onClearDest={clearDest}
@@ -712,6 +720,24 @@ export default function App() {
                     onClear={() => setZone(null)}
                 />
             )}
+
+            <StopLinesDialog
+                stop={stopForLines}
+                onClose={() => setStopForLines(null)}
+                onSelect={selectLine}
+                onSetOrigin={() => {
+                    if (!stopForLines) return;
+                    setOrigin({ lat: stopForLines.lat, lon: stopForLines.lon });
+                    setOriginLabel(stopForLines.name);
+                    setStopForLines(null);
+                }}
+                onSetDest={() => {
+                    if (!stopForLines) return;
+                    setDest({ lat: stopForLines.lat, lon: stopForLines.lon });
+                    setDestLabel(stopForLines.name);
+                    setStopForLines(null);
+                }}
+            />
 
             <LineDialog
                 open={lineDialogOpen}

@@ -151,6 +151,9 @@ const en = {
     failed: 'Couldn’t load the lines.',
     empty: 'No line matches.',
     none: 'No bus stops here.',
+    atStop: 'Bus lines at {name}',
+    setOrigin: 'Set as departure',
+    setDest: 'Set as arrival',
     variantCount:
       '{count, plural, one {# variant} other {# variants}}',
     stopsCount:
