@@ -568,6 +568,7 @@ export default function App() {
             <div className="absolute right-3 bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] z-[1050] flex items-center gap-2">
                 <button
                     type="button"
+                    data-tour="stops"
                     onClick={startZoneSearch}
                     aria-pressed={zoneMode}
                     aria-label={t("searchStops")}

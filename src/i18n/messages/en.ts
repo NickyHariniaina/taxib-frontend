@@ -102,11 +102,15 @@ const en = {
         title: 'Neighborhoods',
         body: 'Search a neighborhood by name, even if it’s misspelled. On the map, the first tap sets the origin, the next one the destination.',
       },
+      stops: {
+        title: 'Bus stops',
+        body: 'Tap the bus button, then the map: every stop around that point shows up in a 500 m zone.',
+      },
     },
   },
   TourPrompt: {
     title: 'Welcome to taxib',
-    body: 'Find your bus in Antananarivo in seconds. Want a quick look? Four steps, thirty seconds.',
+    body: 'Find your bus in Antananarivo in seconds. Want a quick look? {count, plural, one {# step} other {# steps}}, thirty seconds.',
     start: 'Start the tutorial',
     skip: 'Skip, I know the app',
   },

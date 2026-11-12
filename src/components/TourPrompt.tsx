@@ -1,4 +1,5 @@
 import Modal from './Modal';
+import { TOUR_STEP_COUNT } from './Tour';
 import { useTranslations } from '../i18n';
 
 type Props = {
@@ -29,7 +30,7 @@ export default function TourPrompt({ open, onStart, onSkip }: Props) {
           {t('title')}
         </h2>
         <p className="mx-auto mt-2 max-w-[34ch] text-[13px] leading-relaxed text-muted">
-          {t('body')}
+          {t('body', { count: TOUR_STEP_COUNT })}
         </p>
       </div>
 

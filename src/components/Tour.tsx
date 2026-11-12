@@ -12,7 +12,7 @@ type Step = {
   /** Value of the `data-tour` attribute of the element to highlight. */
   target: string;
   /** Message key under `Tour.steps`. */
-  key: 'menu' | 'trip' | 'gps' | 'quartier';
+  key: 'menu' | 'trip' | 'gps' | 'quartier' | 'stops';
   /** Force the card to one side; otherwise it picks the roomier side. */
   placement?: 'above' | 'below';
 };
@@ -22,7 +22,11 @@ const STEPS: Step[] = [
   { target: 'trip', key: 'trip' },
   { target: 'gps', key: 'gps' },
   { target: 'quartier', key: 'quartier', placement: 'above' },
+  { target: 'stops', key: 'stops', placement: 'above' },
 ];
+
+/** How many steps the tour has; the welcome prompt counts them. */
+export const TOUR_STEP_COUNT = STEPS.length;
 
 const CARD_MAX_W = 340;
 const GAP = 14;
