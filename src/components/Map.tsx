@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import {
+  Circle,
   CircleMarker,
   MapContainer,
   Marker,
@@ -9,10 +10,11 @@ import {
   useMap,
   useMapEvents,
 } from 'react-leaflet';
-import type { Stop } from '../lib/stops';
-import type { Neighborhood, NeighborhoodStop } from '../lib/neighborhoods';
+import type { MapStop, Stop } from '../lib/stops';
+import type { Neighborhood } from '../lib/neighborhoods';
 import { useAppearance } from '../lib/useAppearance';
 import { useFormatter, useTranslations } from '../i18n';
+import StopBadges from './StopBadges';
 import L, { type LatLngExpression, type LeafletMouseEvent } from 'leaflet';
 import { TANA, type LatLon } from '../lib/location';
 import 'leaflet/dist/leaflet.css';
@@ -36,19 +38,13 @@ const originIcon = L.icon({
 // Reuse one instance for both markers (same artwork, cheaper DOM).
 const destIcon = originIcon;
 
-/** Escapes text interpolated into the inline SVG of a div icon. */
-const escapeHtml = (value: string) =>
-  value.replace(
-    /[&<>"']/g,
-    (char) =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-      })[char] ?? char,
-  );
+/** Crosshair marking the centre of a stop-search zone. */
+const zonePinIcon = L.divIcon({
+  className: 'zone-pin-icon',
+  html: '<svg viewBox="0 0 30 30" width="30" height="30" aria-hidden="true"><circle cx="15" cy="15" r="11" fill="none" stroke="white" stroke-width="2.5"/><circle cx="15" cy="15" r="4" fill="white"/></svg>',
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+});
 
 export type MapProps = {
   origin: LatLon | null;
@@ -62,9 +58,13 @@ export type MapProps = {
   /** Currently selected quartier, shown on the map. */
   selectedNeighborhood: Neighborhood | null;
   /** Stops of the selected quartier, drawn as bus-stop icons. */
-  quartierStops: NeighborhoodStop[];
+  quartierStops: MapStop[];
   /** True once the selected quartier's stops resolved (empty or not). */
   quartierStopsLoaded: boolean;
+  /** Centre and radius of the stop-search zone. Null = no zone. */
+  zone: { center: LatLon; radiusM: number } | null;
+  /** Stops inside the zone, drawn as bus-stop icons. */
+  zoneStops: MapStop[];
   /** Removes the selected quartier mark. */
   onClearNeighborhood: () => void;
   /** Removes the start (origin) pin. */
@@ -101,19 +101,6 @@ function ClickSetter({ onMapClick }: { onMapClick: (point: LatLon) => void }) {
  */
 function stopMapClick(e: LeafletMouseEvent) {
   L.DomEvent.stopPropagation(e.originalEvent);
-}
-
-/**
- * Bus-stop badge: a rounded square in the accent colour with a solid bus
- * glyph. Solid shapes, not hairlines — at 30px a thin path turns to mush.
- */
-function makeStopIcon(color: string, name: string): L.DivIcon {
-  return L.divIcon({
-    className: 'quartier-stop-icon',
-    html: `<svg viewBox="0 0 30 30" width="30" height="30" role="img" aria-label="${escapeHtml(name)}"><rect x="1" y="1" width="28" height="28" rx="8" fill="${color}" stroke="white" stroke-width="2"/><rect x="10" y="7.5" width="10" height="12" rx="2" fill="white"/><rect x="11.5" y="9" width="7" height="4" rx="1" fill="${color}"/><circle cx="12.5" cy="20.5" r="1.7" fill="white"/><circle cx="17.5" cy="20.5" r="1.7" fill="white"/></svg>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-  });
 }
 
 /** Frames the selected quartier: fits its stops, or zooms to its centre. */
@@ -153,6 +140,8 @@ export default function Map({
   selectedNeighborhood,
   quartierStops,
   quartierStopsLoaded,
+  zone,
+  zoneStops,
   onClearNeighborhood,
   onClearOrigin,
   onClearDest,
@@ -178,15 +167,6 @@ export default function Map({
     return true;
   };
   const center = useMemo<LatLngExpression>(() => [TANA.lat, TANA.lon], []);
-  // One icon per stop: the glyph carries the stop name for screen readers.
-  const stopIcons = useMemo(
-    () =>
-      quartierStops.map((s) => ({
-        stop: s,
-        icon: makeStopIcon(accentColor, s.name),
-      })),
-    [quartierStops, accentColor],
-  );
   return (
     <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
       <TileLayer
@@ -211,6 +191,27 @@ export default function Map({
           pathOptions={{ color: accentColor, weight: 7, opacity: 0.9 }}
         />
       )}
+      {zone && (
+        <Circle
+          center={[zone.center.lat, zone.center.lon]}
+          radius={zone.radiusM}
+          pathOptions={{
+            color: accentColor,
+            weight: 1.5,
+            dashArray: '5 6',
+            fillColor: accentColor,
+            fillOpacity: 0.07,
+          }}
+          eventHandlers={{ click: stopMapClick }}
+        />
+      )}
+      {zone && (
+        <Marker
+          icon={zonePinIcon}
+          position={[zone.center.lat, zone.center.lon]}
+          interactive={false}
+        />
+      )}
       {originStops.map((s) => (
         <CircleMarker
           key={s.id}
@@ -220,7 +221,7 @@ export default function Map({
           eventHandlers={{ click: stopMapClick }}
         >
           <Tooltip direction="top" offset={[0, -6]}>
-            {s.name ?? t('unnamed')} ·{' '}
+            {s.name || t('unnamed')} ·{' '}
             {format.number(s.distanceM, {
               style: 'unit',
               unit: 'meter',
@@ -239,7 +240,7 @@ export default function Map({
           eventHandlers={{ click: stopMapClick }}
         >
           <Tooltip direction="top" offset={[0, -6]}>
-            {s.name ?? t('unnamed')} ·{' '}
+            {s.name || t('unnamed')} ·{' '}
             {format.number(s.distanceM, {
               style: 'unit',
               unit: 'meter',
@@ -287,17 +288,8 @@ export default function Map({
           }}
         />
       )}
-      {stopIcons.map(({ stop, icon }) => (
-        <Marker
-          key={stop.id}
-          icon={icon}
-          position={[stop.lat, stop.lon]}
-        >
-          <Tooltip direction="top" offset={[0, -14]}>
-            {stop.name}
-          </Tooltip>
-        </Marker>
-      ))}
+      <StopBadges stops={quartierStops} />
+      <StopBadges stops={zoneStops} />
       {selectedNeighborhood && (
         <CircleMarker
           className="cursor-pointer"

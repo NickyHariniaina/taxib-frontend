@@ -1,3 +1,5 @@
+import { API_URL } from './api';
+
 export type Neighborhood = {
   id: number;
   name: string;
@@ -12,8 +14,6 @@ export type NeighborhoodStop = {
   lat: number;
   lon: number;
 };
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
 export async function getNeighborhoods(
   signal?: AbortSignal,

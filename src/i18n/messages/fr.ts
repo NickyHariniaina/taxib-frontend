@@ -13,6 +13,9 @@ const fr = {
     useGps: 'Utiliser le GPS',
     currentLocation: 'Position actuelle',
     searchQuartier: 'Chercher un quartier',
+    searchStops: 'Chercher des arrêts de bus',
+    zoneHint: 'Touchez la carte pour choisir le centre de la zone.',
+    zoneCancel: 'Annuler',
     removeOrigin: 'Touchez pour retirer le départ',
     removeDest: 'Touchez pour retirer l’arrivée',
   },
@@ -69,6 +72,9 @@ const fr = {
     stopsFailed: 'Impossible de charger les arrêts.',
     stopsCount:
       '{count, plural, =0 {Aucun arrêt} one {# arrêt} other {# arrêts}}',
+    zoneTitle: 'Zone de recherche',
+    zoneCount:
+      '{count, plural, =0 {Aucun arrêt} one {# arrêt} other {# arrêts}} · {radius}',
     more: '{count, plural, one {# résultat supplémentaire} other {# résultats supplémentaires}} — tapez plus pour affiner.',
     empty: 'Aucun quartier trouvé. Essayez un nom plus court.',
     error: 'Impossible de charger les quartiers. Vérifiez la connexion.',

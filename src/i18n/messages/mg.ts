@@ -22,6 +22,9 @@ const mg = {
     useGps: 'Ampiasao ny GPS',
     currentLocation: 'Ny toerana misy anao',
     searchQuartier: 'Karohina ny kafo',
+    searchStops: 'Karohina ny fijanonana boriby',
+    zoneHint: 'Kitiho ny sary mba hahafanao ny foan\'ny zone.',
+    zoneCancel: 'Hanafoana',
     removeOrigin: 'Kitiho ny toerana mpandehana',
     removeDest: 'Kitiho ny toerana tratra',
   },
@@ -82,6 +85,9 @@ const mg = {
     stopsFailed: 'Tsy azo ampitahana ny fijanonana.',
     stopsCount:
       '{count, plural, =0 {Tsy misy fijanonana} one {# fijanonana} other {# fijanonana}}',
+    zoneTitle: 'Faritra fikarohana',
+    zoneCount:
+      '{count, plural, =0 {Tsy misy fijanonana} one {# fijanonana} other {# fijanonana}} · {radius}',
     more:
       '{count, plural, one {# valiny fanampiny} other {# valiny fanampiny}} — manoratra bebe kokoa hanampy.',
     empty: 'Tsy hita ny kafo. Andramo ny anarana fohy.',

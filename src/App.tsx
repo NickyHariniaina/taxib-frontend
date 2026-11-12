@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Map from "./components/Map";
 import QuartierSearch from "./components/QuartierSearch";
-import QuartierBar from "./components/QuartierBar";
+import SelectionBar from "./components/SelectionBar";
 import Tour from "./components/Tour";
 import TourPrompt from "./components/TourPrompt";
 import TripDrawer from "./components/TripDrawer";
@@ -17,7 +17,7 @@ import { findNearbyStops, type Stop } from "./lib/stops";
 import { findLinesNear, type BusLine } from "./lib/lines";
 import { getRoadPath, type RoadPath } from "./lib/directions";
 import { hasSeenTour, markTourSeen } from "./lib/tour";
-import { useTranslations, type ErrorKey } from "./i18n";
+import { useFormatter, useTranslations, type ErrorKey } from "./i18n";
 
 /** Label sentinel translated at render, so it follows the active locale. */
 const GPS_LABEL = "\u0000gps";
@@ -35,11 +35,27 @@ type QuartierStops = {
   failed: boolean;
 };
 
+/** Radius of the stop-search zone, in metres. */
+const ZONE_RADIUS_M = 500;
+
+/** A stop-search zone: a centre, a radius and the stops inside it. */
+type Zone = {
+  /** Bumped on every search, so searching the same spot again refetches. */
+  id: number;
+  center: LatLon;
+  radiusM: number;
+  stops: Stop[];
+  loading: boolean;
+  failed: boolean;
+};
+
 const coordsLabel = (p: LatLon) => `${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}`;
 const keyOf = (p: LatLon | null) => (p ? `${p.lat},${p.lon}` : "unset");
 
 export default function App() {
     const t = useTranslations("App");
+    const tQuartier = useTranslations("Quartier");
+    const format = useFormatter();
     // No defaults: the user sets each endpoint via search, GPS, or map tap.
     const [origin, setOrigin] = useState<LatLon | null>(null);
     const [dest, setDest] = useState<LatLon | null>(null);
@@ -54,6 +70,9 @@ export default function App() {
         null,
     );
     const [focus, setFocus] = useState<LatLon | null>(null);
+    // Stop-search zone: a circle of a fixed radius around a tapped point.
+    const [zoneMode, setZoneMode] = useState(false);
+    const [zone, setZone] = useState<Zone | null>(null);
     const [error, setError] = useState<ErrorKey | null>(null);
     const [locating, setLocating] = useState(false);
     const [originStops, setOriginStops] = useState<Stop[]>([]);
@@ -217,6 +236,74 @@ export default function App() {
             loading: true,
             failed: false,
         });
+        // One exploration at a time: the zone would hide the quartier bar.
+        setZone(null);
+        setZoneMode(false);
+    };
+
+    // Stops inside the search zone. The zone id changes on every search, so
+    // searching the same spot again refetches.
+    useEffect(() => {
+        if (!zone) return;
+        const ctrl = new AbortController();
+        findNearbyStops(
+            zone.center,
+            {
+                radiusM: zone.radiusM,
+                limit: 50,
+                signal: ctrl.signal,
+            },
+        )
+            .then((stops) => {
+                if (ctrl.signal.aborted) return;
+                setZone((z) =>
+                    z && z.id === zone.id
+                        ? { ...z, stops, loading: false }
+                        : z,
+                );
+            })
+            .catch((e) => {
+                if (ctrl.signal.aborted) return;
+                if (e instanceof DOMException && e.name === "AbortError") return;
+                setZone((z) =>
+                    z && z.id === zone.id
+                        ? { ...z, stops: [], loading: false, failed: true }
+                        : z,
+                );
+            });
+        return () => ctrl.abort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [zone?.id]);
+
+    /** Drops a search zone centred on a tapped point. */
+    const searchZoneAt = (p: LatLon) => {
+        setZoneMode(false);
+        setSelectedQuartier(null);
+        setQuartierStops(null);
+        setZone({
+            id: Date.now(),
+            center: p,
+            radiusM: ZONE_RADIUS_M,
+            stops: [],
+            loading: true,
+            failed: false,
+        });
+        setFocus(p);
+    };
+
+    /** Enters the "pick the centre of the zone" mode. */
+    const startZoneSearch = () => {
+        setDrawerOpen(false);
+        setZoneMode((mode) => {
+            if (!mode) {
+                // One exploration at a time: the quartier bar would overlap.
+                setSelectedQuartier(null);
+                setQuartierStops(null);
+            } else {
+                setZone(null);
+            }
+            return !mode;
+        });
     };
 
     const useGps = async () => {
@@ -260,6 +347,11 @@ export default function App() {
 
     /** Tap on empty map: fills origin first, then destination. */
     const mapTap = (p: LatLon) => {
+        // In zone-search mode a tap centres the search instead.
+        if (zoneMode) {
+            searchZoneAt(p);
+            return;
+        }
         if (!origin) {
             setOrigin(p);
             setOriginLabel(coordsLabel(p));
@@ -311,8 +403,17 @@ export default function App() {
             ? quartierStops
             : null;
 
+    const radiusLabel = format.number(ZONE_RADIUS_M, {
+        style: "unit",
+        unit: "meter",
+        unitDisplay: "short",
+        maximumFractionDigits: 0,
+    });
+
     return (
-        <div className="relative h-svh overflow-hidden bg-canvas text-ink overscroll-none">
+        <div
+            className={`relative h-svh overflow-hidden bg-canvas text-ink overscroll-none ${zoneMode ? "map-picking" : ""}`}
+        >
             {/* map owns the screen */}
             <div className="absolute inset-0">
                 <Map
@@ -325,6 +426,12 @@ export default function App() {
                     selectedNeighborhood={selectedQuartier}
                     quartierStops={stopList?.stops ?? []}
                     quartierStopsLoaded={stopList !== null && !stopList.loading}
+                    zone={
+                        zone
+                            ? { center: zone.center, radiusM: zone.radiusM }
+                            : null
+                    }
+                    zoneStops={zone?.stops ?? []}
                     onClearNeighborhood={clearQuartier}
                     onClearOrigin={clearOrigin}
                     onClearDest={clearDest}
@@ -458,43 +565,109 @@ export default function App() {
                 }}
             />
 
-            {/* map action: search a quartier */}
-            <button
-                type="button"
-                data-tour="quartier"
-                onClick={() => {
-                    setDrawerOpen(false);
-                    setQuartierOpen(true);
-                }}
-                aria-label={t("searchQuartier")}
-                aria-haspopup="dialog"
-                aria-controls="quartier-dialog"
-                title={t("searchQuartier")}
-                className="absolute right-3 bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] z-[1050] grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-line bg-panel/90 text-ink shadow-2xl backdrop-blur transition hover:bg-raised active:bg-raised-strong focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-            >
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                    className="h-5 w-5"
+            {/* map actions: search a bus stop zone, search a quartier */}
+            <div className="absolute right-3 bottom-[max(2rem,calc(env(safe-area-inset-bottom)+1rem))] z-[1050] flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={startZoneSearch}
+                    aria-pressed={zoneMode}
+                    aria-label={t("searchStops")}
+                    title={t("searchStops")}
+                    className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-line bg-panel/90 text-ink shadow-2xl backdrop-blur transition hover:bg-raised active:bg-raised-strong focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-canvas ${
+                        zoneMode ? "bg-brand text-brand-ink" : ""
+                    }`}
                 >
-                    <circle cx="11" cy="11" r="7" />
-                    <path d="m20 20-4.35-4.35" />
-                </svg>
-            </button>
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                        className="h-5 w-5"
+                    >
+                        <rect x="4" y="4" width="16" height="13" rx="2" />
+                        <path d="M4 10h16M8 17v3M16 17v3M8 20h8" />
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    data-tour="quartier"
+                    onClick={() => {
+                        setDrawerOpen(false);
+                        setQuartierOpen(true);
+                    }}
+                    aria-label={t("searchQuartier")}
+                    aria-haspopup="dialog"
+                    aria-controls="quartier-dialog"
+                    title={t("searchQuartier")}
+                    className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-line bg-panel/90 text-ink shadow-2xl backdrop-blur transition hover:bg-raised active:bg-raised-strong focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                        className="h-5 w-5"
+                    >
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-4.35-4.35" />
+                    </svg>
+                </button>
+            </div>
+
+            {/* hint while the zone centre is being picked */}
+            {zoneMode && (
+                <div className="pointer-events-auto absolute bottom-[max(5rem,calc(env(safe-area-inset-bottom)+4rem))] left-3 right-3 z-[1050] flex items-center gap-2 rounded-2xl border border-brand/40 bg-panel/95 px-3 py-2.5 text-[13px] font-medium text-ink shadow-2xl backdrop-blur">
+                    <span className="flex-1">{t("zoneHint")}</span>
+                    <button
+                        type="button"
+                        onClick={() => setZoneMode(false)}
+                        className="shrink-0 rounded-lg px-2 py-1 text-[12px] font-semibold text-muted transition hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                    >
+                        {t("zoneCancel")}
+                    </button>
+                </div>
+            )}
 
             {/* selected quartier: name, stop count, clear */}
             {selectedQuartier && (
-                <QuartierBar
-                    name={selectedQuartier.name}
-                    count={stopList ? stopList.stops.length : null}
-                    loading={stopList?.loading ?? true}
-                    failed={stopList?.failed ?? false}
+                <SelectionBar
+                    title={selectedQuartier.name}
+                    subtitle={
+                        stopList === null
+                            ? tQuartier("stopsLoading")
+                            : stopList.loading
+                              ? tQuartier("stopsLoading")
+                              : stopList.failed
+                                ? tQuartier("stopsFailed")
+                                : tQuartier("stopsCount", {
+                                      count: stopList.stops.length,
+                                  })
+                    }
                     onClear={clearQuartier}
+                />
+            )}
+
+            {/* search zone: stop count, radius, clear */}
+            {zone && (
+                <SelectionBar
+                    title={tQuartier("zoneTitle")}
+                    subtitle={
+                        zone.loading
+                            ? tQuartier("stopsLoading")
+                            : zone.failed
+                              ? tQuartier("stopsFailed")
+                              : tQuartier("zoneCount", {
+                                    count: zone.stops.length,
+                                    radius: radiusLabel,
+                                })
+                    }
+                    onClear={() => setZone(null)}
                 />
             )}
 
