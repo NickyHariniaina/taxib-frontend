@@ -91,6 +91,12 @@ html[data-accent='rose'] {
   max-width: none;
 }
 
+/* Quartier stop badges: a shadow separates them from pale map tiles, where
+   the white ring alone would disappear. */
+.quartier-stop-icon {
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.45));
+}
+
 /* Quartier dialog entrances */
 @keyframes sheetIn {
   from {

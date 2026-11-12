@@ -50,10 +50,6 @@ const escapeHtml = (value: string) =>
       })[char] ?? char,
   );
 
-/** Bus glyph inside a filled disc. */
-const BUS_GLYPH =
-  'M6 5h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-.5v1.5a.5.5 0 0 1-1 0V15h-8v1.5a.5.5 0 0 1-1 0V15H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1ZM5 7v4h14V7H5Zm1.5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z';
-
 export type MapProps = {
   origin: LatLon | null;
   dest: LatLon | null;
@@ -107,13 +103,16 @@ function stopMapClick(e: LeafletMouseEvent) {
   L.DomEvent.stopPropagation(e.originalEvent);
 }
 
-/** Bus-stop icon for a quartier stop: a disc with a bus glyph. */
+/**
+ * Bus-stop badge: a rounded square in the accent colour with a solid bus
+ * glyph. Solid shapes, not hairlines — at 30px a thin path turns to mush.
+ */
 function makeStopIcon(color: string, name: string): L.DivIcon {
   return L.divIcon({
     className: 'quartier-stop-icon',
-    html: `<svg viewBox="0 0 24 24" width="22" height="22" role="img" aria-label="${escapeHtml(name)}"><circle cx="12" cy="12" r="11" fill="${color}" stroke="white" stroke-width="1.5"/><path d="${BUS_GLYPH}" fill="white"/></svg>`,
-    iconSize: [22, 22],
-    iconAnchor: [11, 11],
+    html: `<svg viewBox="0 0 30 30" width="30" height="30" role="img" aria-label="${escapeHtml(name)}"><rect x="1" y="1" width="28" height="28" rx="8" fill="${color}" stroke="white" stroke-width="2"/><rect x="10" y="7.5" width="10" height="12" rx="2" fill="white"/><rect x="11.5" y="9" width="7" height="4" rx="1" fill="${color}"/><circle cx="12.5" cy="20.5" r="1.7" fill="white"/><circle cx="17.5" cy="20.5" r="1.7" fill="white"/></svg>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
   });
 }
 
@@ -294,7 +293,7 @@ export default function Map({
           icon={icon}
           position={[stop.lat, stop.lon]}
         >
-          <Tooltip direction="top" offset={[0, -10]}>
+          <Tooltip direction="top" offset={[0, -14]}>
             {stop.name}
           </Tooltip>
         </Marker>
