@@ -2,9 +2,9 @@
  * Server-side proxy between the browser and the taxib API.
  *
  * The API key lives in the Vercel environment (`TAXIB_API_URL`, `TAXIB_API_KEY`) and never
- * reaches the bundle: the browser calls same-origin `/api/**`, Vercel routes it to this function,
- * which adds the key and passes the response straight through — cache headers included, so the
- * CDN absorbs the repeats.
+ * reaches the bundle: the browser calls same-origin `/api/**`, `vercel.json` rewrites that to
+ * `/api/proxy?path=<rest>`, and this function adds the key and passes the response straight
+ * through — cache headers included, so the CDN absorbs the repeats.
  */
 const UPSTREAM = (process.env.TAXIB_API_URL ?? '').replace(/\/+$/, '');
 const API_KEY = process.env.TAXIB_API_KEY ?? '';
@@ -17,6 +17,23 @@ function problem(res, status, title) {
   res.setHeader('Content-Type', 'application/problem+json');
   res.setHeader('Cache-Control', 'no-store');
   res.send(JSON.stringify({ type: 'about:blank', title, status }));
+}
+
+/** The API path the rewrite captured, e.g. `/api/lines/147/stops`. */
+function upstreamUrl(req) {
+  const captured = req.query?.path;
+  const path = Array.isArray(captured) ? captured.join('/') : (captured ?? '');
+  const target = new URL(`${UPSTREAM}/api/${path}`);
+
+  for (const [name, value] of Object.entries(req.query ?? {})) {
+    if (name === 'path') {
+      continue;
+    }
+    for (const item of Array.isArray(value) ? value : [value]) {
+      target.searchParams.append(name, item);
+    }
+  }
+  return target;
 }
 
 export default async function handler(req, res) {
@@ -32,7 +49,7 @@ export default async function handler(req, res) {
 
   let upstream;
   try {
-    upstream = await fetch(`${UPSTREAM}${req.url}`, {
+    upstream = await fetch(upstreamUrl(req), {
       method: req.method,
       headers: { Accept: 'application/json', 'X-Api-Key': API_KEY },
       signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
